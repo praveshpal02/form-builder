@@ -235,11 +235,16 @@ export default function FormBuilder({
   // Auto-save with debounce
   const autoSaveTimer = useRef(null);
   useEffect(() => {
+    if (isPublishingRef.current) return;
     if (!isDirty || !validation.valid || saveState === "saving") return;
+
     if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
     autoSaveTimer.current = setTimeout(() => {
-      handleSave();
+      if (!isPublishingRef.current) {
+        handleSave();
+      }
     }, 1000);
+
     return () => {
       if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
     };
@@ -643,7 +648,7 @@ export default function FormBuilder({
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li className="flex items-start gap-2">
                   <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
-                  <span>Publish saves your latest changes and makes the form public.</span>
+                  <span>Publish saves your latest changes and makes the form public in one step.</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
