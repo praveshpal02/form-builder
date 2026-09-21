@@ -141,6 +141,15 @@ export default function FormRenderer({ schema, formId, submissionCount = 0, prev
             </div>
             <h2 className="text-lg font-semibold text-foreground mb-1.5">{settings.successMessage || formT("form.success", locale)}</h2>
             <p className="text-[13px] text-muted-foreground">{formT("form.recorded", locale)}</p>
+            {preview && (
+              <button type="button" onClick={() => { setSubmitted(false); setValues(initialValues); setErrors({}); if (onPreviewReset) onPreviewReset(); }}
+                className="mt-4 inline-flex items-center gap-1.5 rounded-md border border-border bg-white px-4 py-2 text-[13px] font-medium text-foreground hover:bg-muted transition-colors">
+                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182" />
+                </svg>
+                Submit another response
+              </button>
+            )}
           </div>
         </div>
       </div>

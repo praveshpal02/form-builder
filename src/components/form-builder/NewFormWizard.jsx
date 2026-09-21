@@ -122,7 +122,7 @@ export default function NewFormWizard() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <button type="button" onClick={handleSelectBlank}
                 className="group flex flex-col items-start p-5 rounded-lg border border-border hover:border-foreground/20 bg-white hover:bg-muted/20 text-left transition-all hover:shadow-sm">
-                <div className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-muted text-muted-foreground mb-3 group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+                <div className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-muted text-muted-foreground mb-3 group-hover:bg-foreground/10 group-hover:text-foreground transition-colors">
                   <svg className="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                   </svg>
@@ -132,7 +132,7 @@ export default function NewFormWizard() {
               </button>
               <button type="button" onClick={() => setStep("templates")}
                 className="group flex flex-col items-start p-5 rounded-lg border border-border hover:border-foreground/20 bg-white hover:bg-muted/20 text-left transition-all hover:shadow-sm">
-                <div className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-muted text-muted-foreground mb-3 group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+                <div className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-muted text-muted-foreground mb-3 group-hover:bg-foreground/10 group-hover:text-foreground transition-colors">
                   <svg className="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z" />
                   </svg>

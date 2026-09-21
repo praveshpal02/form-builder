@@ -103,7 +103,7 @@ export default function FormCanvas({
               onClick={() => onOpenFieldPicker(0)}
               className="inline-flex items-center gap-1.5 rounded-md border border-dashed border-border px-3 py-1.5 text-[12px] font-medium text-muted-foreground hover:text-foreground hover:border-foreground/30 hover:bg-white transition-all"
             >
-              <svg className="h-3.5 w-3.5 text-primary" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+              <svg className="h-3.5 w-3.5 text-foreground" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
               </svg>
               <span>Add at top</span>
@@ -158,7 +158,7 @@ export default function FormCanvas({
                   />
 
                   <div
-                    className={`group/insert relative py-2 flex items-center justify-center ${dragOverIndex === index + 1 ? "bg-primary/5 border-t-2 border-primary" : ""}`}
+                    className={`group/insert relative py-2 flex items-center justify-center ${dragOverIndex === index + 1 ? "bg-foreground/5 border-t-2 border-foreground" : ""}`}
                     onDragOver={(e) => handleDragOver(e, index + 1)}
                     onDragLeave={(e) => handleDragLeave(e, index + 1)}
                     onDrop={(e) => handleDrop(e, index + 1)}
@@ -182,7 +182,7 @@ export default function FormCanvas({
             </div>
 
             <div
-              className={`group/insert relative py-2 flex items-center justify-center ${dragOverIndex === fields.length ? "bg-primary/5 border-t-2 border-primary" : ""}`}
+              className={`group/insert relative py-2 flex items-center justify-center ${dragOverIndex === fields.length ? "bg-foreground/5 border-t-2 border-foreground" : ""}`}
               onDragOver={(e) => handleDragOver(e, fields.length)}
               onDragLeave={(e) => handleDragLeave(e, fields.length)}
               onDrop={(e) => handleDrop(e, fields.length)}

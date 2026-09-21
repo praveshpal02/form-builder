@@ -71,7 +71,7 @@ export default function FieldRenderer({ field, value, onChange, error, locale = 
           <div className="space-y-1.5" role="radiogroup" aria-labelledby={labelId}>
             {(field.options || []).map((opt, i) => (
               <label key={i} className="flex items-center gap-2.5 rounded-md border border-border bg-white px-3 py-2 text-[13px] text-foreground cursor-pointer hover:bg-muted/50 transition-colors has-[:checked]:border-foreground/30 has-[:checked]:bg-foreground/[0.02]">
-                <input type="radio" name={fieldId} value={opt.value} checked={value === opt.value} onChange={(e) => onChange(e.target.value)} required={field.required} className="h-3.5 w-3.5 border-border text-primary focus:ring-primary" />
+                <input type="radio" name={fieldId} value={opt.value} checked={value === opt.value} onChange={(e) => onChange(e.target.value)} required={field.required} className="h-3.5 w-3.5 border-border text-foreground focus:ring-foreground/20" />
                 <span>{opt.label || opt.value}</span>
               </label>
             ))}
@@ -80,7 +80,7 @@ export default function FieldRenderer({ field, value, onChange, error, locale = 
       case "checkbox":
         return (
           <label className="flex items-start gap-2.5 rounded-md border border-border bg-white px-3 py-2.5 text-[13px] text-foreground cursor-pointer hover:bg-muted/50 transition-colors has-[:checked]:border-foreground/30 has-[:checked]:bg-foreground/[0.02]">
-            <input id={fieldId} type="checkbox" checked={Boolean(value)} onChange={(e) => onChange(e.target.checked)} className="h-3.5 w-3.5 mt-0.5 rounded border-border text-primary focus:ring-primary" aria-describedby={describedBy} />
+            <input id={fieldId} type="checkbox" checked={Boolean(value)} onChange={(e) => onChange(e.target.checked)} className="h-3.5 w-3.5 mt-0.5 rounded border-border text-foreground focus:ring-foreground/20" aria-describedby={describedBy} />
             <span className="text-muted-foreground">{field.placeholder || field.label}</span>
           </label>
         );
@@ -101,7 +101,7 @@ export default function FieldRenderer({ field, value, onChange, error, locale = 
           <div className="flex items-center gap-0.5" role="group" aria-labelledby={labelId}>
             {Array.from({ length: maxStars }).map((_, i) => (
               <button key={i} type="button" onClick={() => onChange(i + 1)} className="p-0.5 transition-colors" aria-label={`Rate ${i + 1} of ${maxStars}`}>
-                <svg className={`h-6 w-6 transition-colors ${i < numericValue ? "text-warning" : "text-muted-foreground/30 hover:text-amber-200"}`} fill="currentColor" viewBox="0 0 24 24">
+                <svg className={`h-6 w-6 transition-colors ${i < numericValue ? "text-warning" : "text-muted-foreground/30 hover:text-warning/50"}`} fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
                 </svg>
               </button>

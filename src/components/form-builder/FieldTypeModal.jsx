@@ -125,11 +125,11 @@ export default function FieldTypeModal({ isOpen, onClose, onSelectType }) {
                       onClick={() => { onSelectType(item.type); onClose(); }}
                       className="group flex items-center gap-2.5 p-2.5 rounded-md border border-border/60 bg-white hover:bg-muted/40 hover:border-foreground/20 text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     >
-                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-muted text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-muted text-muted-foreground group-hover:bg-foreground/10 group-hover:text-foreground transition-colors">
                         {item.icon}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <div className="text-[12px] font-medium text-foreground group-hover:text-primary transition-colors">{item.label}</div>
+                        <div className="text-[12px] font-medium text-foreground group-hover:text-foreground transition-colors">{item.label}</div>
                         <p className="text-[11px] text-muted-foreground truncate mt-0">{item.description}</p>
                       </div>
                     </button>

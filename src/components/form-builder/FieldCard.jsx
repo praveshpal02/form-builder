@@ -132,7 +132,7 @@ export default function FieldCard({
             {Array.isArray(field.options) && field.options.length > 0 ? (
               field.options.map((opt, idx) => (
                 <label key={idx} className="flex items-center gap-2 text-[13px] text-foreground cursor-pointer">
-                  <input type="radio" name={`preview_${field.id}`} disabled checked={field.defaultValue === opt.value} readOnly className="h-3.5 w-3.5 border-border text-primary focus:ring-primary" />
+                  <input type="radio" name={`preview_${field.id}`} disabled checked={field.defaultValue === opt.value} readOnly className="h-3.5 w-3.5 border-border text-foreground focus:ring-foreground/20" />
                   <span>{opt.label || opt.value || `Option ${idx + 1}`}</span>
                 </label>
               ))
@@ -144,7 +144,7 @@ export default function FieldCard({
       case "checkbox":
         return (
           <label className="flex items-start gap-2 text-[13px] text-foreground cursor-pointer pt-0.5">
-            <input type="checkbox" disabled checked={Boolean(field.defaultValue)} readOnly className="h-3.5 w-3.5 mt-0.5 rounded border-border text-primary focus:ring-primary" />
+            <input type="checkbox" disabled checked={Boolean(field.defaultValue)} readOnly className="h-3.5 w-3.5 mt-0.5 rounded border-border text-foreground focus:ring-foreground/20" />
             <span className="text-muted-foreground">{field.placeholder || "Confirm or agree to proceed"}</span>
           </label>
         );
@@ -359,7 +359,7 @@ export default function FieldCard({
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" checked={Boolean(field.required)} onChange={(e) => handleTextChange("required", e.target.checked)} className="sr-only peer" />
-                    <div className="w-8 h-[18px] bg-muted peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-[14px] after:w-[14px] after:transition-all peer-checked:bg-foreground border border-border" />
+                    <div className="w-8 h-[18px] bg-muted peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-border after:border after:rounded-full after:h-[14px] after:w-[14px] after:transition-all peer-checked:bg-foreground border border-border" />
                   </label>
                 </div>
               </div>
@@ -482,7 +482,7 @@ export default function FieldCard({
                 <div className="space-y-2 pt-2 border-t border-border/40">
                   <div className="flex items-center justify-between">
                     <label className="text-[11px] font-medium text-muted-foreground">Choices / Options</label>
-                    <button type="button" onClick={handleAddOption} className="text-[11px] font-medium text-primary hover:underline flex items-center gap-0.5">
+                    <button type="button" onClick={handleAddOption} className="text-[11px] font-medium text-foreground hover:underline flex items-center gap-0.5">
                       + Add Option
                     </button>
                   </div>
@@ -517,7 +517,7 @@ export default function FieldCard({
                 <div className="pt-2 border-t border-border/40">
                   <label className="flex items-center gap-2 text-[13px] text-foreground cursor-pointer">
                     <input type="checkbox" checked={Boolean(field.defaultValue)} onChange={(e) => handleTextChange("defaultValue", e.target.checked)}
-                      className="h-3.5 w-3.5 rounded border-border text-primary focus:ring-primary" />
+                      className="h-3.5 w-3.5 rounded border-border text-foreground focus:ring-foreground/20" />
                     <span className="text-[12px]">Checked by default</span>
                   </label>
                 </div>

@@ -2,7 +2,6 @@
 
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import {
   createField,
   createEmptyFormSchema,
@@ -21,8 +20,6 @@ export default function FormBuilder({
   formStatus: initialFormStatus = "draft",
   mode = "create",
 }) {
-  const router = useRouter();
-
   const [formSchema, setFormSchema] = useState(() => {
     const base = initialSchema
       ? { ...initialSchema }
@@ -115,7 +112,7 @@ export default function FormBuilder({
       setSaveError(err.message);
       return null;
     }
-  }, [formSchema, saveState, validation.valid, formId, formStatus, router]);
+  }, [formSchema, saveState, validation.valid, formId, formStatus]);
 
   const handlePublish = useCallback(async () => {
     if (publishState === "loading") return;
@@ -154,7 +151,7 @@ export default function FormBuilder({
       setPublishState("idle");
       isPublishingRef.current = false;
     }
-  }, [publishState, formSchema, formId, router]);
+  }, [publishState, formSchema, formId]);
 
   const handleUnpublish = useCallback(async () => {
     if (publishState === "loading") return;

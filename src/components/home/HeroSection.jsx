@@ -1,7 +1,19 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useSyncExternalStore } from "react";
 import Link from "next/link";
+
+function useMediaQuery(query) {
+  return useSyncExternalStore(
+    (callback) => {
+      const mq = window.matchMedia(query);
+      mq.addEventListener("change", callback);
+      return () => mq.removeEventListener("change", callback);
+    },
+    () => window.matchMedia(query).matches,
+    () => false
+  );
+}
 
 export default function HeroSection() {
   const heroRef = useRef(null);
@@ -11,24 +23,9 @@ export default function HeroSection() {
   const blob3Ref = useRef(null);
   const rafRef = useRef(null);
   const mouseRef = useRef({ x: 0.5, y: 0.5 });
-  const [reducedMotion, setReducedMotion] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
 
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setReducedMotion(mq.matches);
-    const handleMq = (e) => setReducedMotion(e.matches);
-    mq.addEventListener("change", handleMq);
-
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-
-    return () => {
-      mq.removeEventListener("change", handleMq);
-      window.removeEventListener("resize", checkMobile);
-    };
-  }, []);
+  const reducedMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
+  const isMobile = useMediaQuery("(max-width: 767px)");
 
   const updateMask = useCallback(() => {
     const { x, y } = mouseRef.current;
@@ -86,7 +83,6 @@ export default function HeroSection() {
     <div
       ref={heroRef}
       className="relative flex flex-col items-center justify-center min-h-[calc(100vh-3.5rem)] overflow-hidden"
-      onMouseMove={handleMouseMove}
     >
       {/* Animated gradient blobs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
@@ -155,7 +151,7 @@ export default function HeroSection() {
           className="absolute inset-0 pointer-events-none opacity-[0.3]"
           aria-hidden="true"
           style={{
-            backgroundImage: `radial-gradient(circle, rgba(124,58,237,0.12) 1px, transparent 1px)`,
+            backgroundImage: `radial-gradient(circle, rgba(10,10,10,0.1) 1px, transparent 1px)`,
             backgroundSize: "24px 24px",
             WebkitMaskImage: `radial-gradient(
               ellipse 280px 280px at var(--mx, 50%) var(--my, 50%),
@@ -197,7 +193,7 @@ export default function HeroSection() {
           <span
             className="inline-block"
             style={{
-              background: "linear-gradient(135deg, #7c3aed, #2563eb, #6366f1)",
+              background: "linear-gradient(135deg, #0a0a0a, #404040, #0a0a0a)",
               backgroundSize: "200% 200%",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
