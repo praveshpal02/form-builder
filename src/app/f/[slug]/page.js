@@ -7,7 +7,7 @@ export async function generateMetadata({ params }) {
   const { slug } = await params;
   const form = await db.form.findUnique({
     where: { slug },
-    select: { title: true },
+    select: { title: true, status: true },
   });
 
   if (!form || form.status !== "published") {

@@ -11,8 +11,8 @@ compatibility_flags = ["nodejs_compat"]
 #   npx wrangler d1 create tally-form-builder
 [[d1_databases]]
 binding = "DB"
-database_name = "form-builder"
-database_id = "ec7825da-415a-4b9d-8e0c-5602f01864a3"
+database_name = "tally-form-builder"
+database_id = "e3815771-9875-492f-9e59-cd6ad34b3199"
 migrations_dir = "d1-migrations"
 
 # Static assets

@@ -1,6 +1,15 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function Navbar() {
+  const pathname = usePathname();
+
+  if (pathname.startsWith("/f/")) {
+    return null;
+  }
+
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-card/80 backdrop-blur-sm">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">

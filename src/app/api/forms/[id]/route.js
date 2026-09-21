@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { validateFormSchema } from "@/lib/form-schema";
-import { ensureUniqueSlug } from "@/lib/slug";
+import { generateSlug, ensureUniqueSlug } from "@/lib/slug";
 
 export async function GET(_request, { params }) {
   try {
@@ -73,6 +73,14 @@ export async function PUT(request, { params }) {
     if (description !== undefined) updateData.description = description;
     if (schema !== undefined) updateData.schema = JSON.stringify(schema);
     if (status !== undefined) updateData.status = status;
+
+    // Generate slug on first publish if missing
+    if (status === "published" && !existing.slug) {
+      const titleForSlug = title !== undefined ? title.trim() : existing.title;
+      const baseSlug = generateSlug(titleForSlug);
+      const slug = await ensureUniqueSlug(baseSlug, id);
+      updateData.slug = slug;
+    }
 
     const form = await db.form.update({
       where: { id },

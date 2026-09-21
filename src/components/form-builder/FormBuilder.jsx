@@ -128,6 +128,8 @@ export default function FormBuilder({
     }
   }, [formSchema, saveState, validation.valid, mode, formId, router]);
 
+  const isPublishingRef = useRef(false);
+
   const handlePublish = useCallback(async () => {
     if (publishState === "loading") return;
     if (!validation.valid) {
@@ -137,21 +139,50 @@ export default function FormBuilder({
 
     setPublishState("loading");
     setPublishError(null);
+    isPublishingRef.current = true;
 
     try {
-      const saveResult = await handleSave({ status: "published" });
-      if (!saveResult) {
-        setPublishState("idle");
-        return;
+      const isEditing = mode === "edit" && formId;
+      const url = isEditing ? `/api/forms/${formId}` : "/api/forms";
+      const method = isEditing ? "PUT" : "POST";
+
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: formSchema.title || "Untitled Form",
+          description: formSchema.description || "",
+          schema: formSchema,
+          status: "published",
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to publish form");
       }
 
+      setLastSavedString(JSON.stringify(formSchema));
       setFormStatus("published");
-      setPublishState("idle");
+      setSaveState("saved");
+
+      if (data.form?.slug) {
+        setSlug(data.form.slug);
+      }
+
+      if (!isEditing && data.form?.id) {
+        router.replace(`/forms/${data.form.id}/edit`, { scroll: false });
+      }
+
+      setTimeout(() => setSaveState("idle"), 2000);
     } catch (err) {
-      setPublishState("idle");
       setPublishError(err.message || "Failed to publish form.");
+    } finally {
+      setPublishState("idle");
+      isPublishingRef.current = false;
     }
-  }, [publishState, validation.valid, handleSave]);
+  }, [publishState, validation.valid, formSchema, mode, formId, router]);
 
   const handleUnpublish = useCallback(async () => {
     if (publishState === "loading") return;
@@ -497,7 +528,7 @@ export default function FormBuilder({
                   <button
                     type="button"
                     onClick={handlePublish}
-                    disabled={publishState === "loading" || !validation.valid || isDirty}
+                    disabled={publishState === "loading" || !validation.valid}
                     className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-xs"
                   >
                     {publishState === "loading" ? (
@@ -520,11 +551,6 @@ export default function FormBuilder({
                   {!validation.valid && (
                     <p className="text-xs text-red-600">
                       Fix form errors before publishing.
-                    </p>
-                  )}
-                  {isDirty && (
-                    <p className="text-xs text-amber-600">
-                      Save your changes before publishing.
                     </p>
                   )}
                 </div>
