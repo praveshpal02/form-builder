@@ -92,27 +92,27 @@ export default function HeroSection() {
       <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
         <div
           ref={blob1Ref}
-          className="absolute -top-32 -left-32 w-[500px] h-[500px] rounded-full opacity-[0.07]"
+          className="absolute -top-32 -left-32 w-[500px] h-[500px] rounded-full opacity-[0.04]"
           style={{
-            background: "radial-gradient(circle, #7c3aed 0%, transparent 70%)",
+            background: "radial-gradient(circle, #0a0a0a 0%, transparent 70%)",
             animation: reducedMotion ? "none" : "hero-blob-drift-1 18s ease-in-out infinite",
             willChange: "transform",
           }}
         />
         <div
           ref={blob2Ref}
-          className="absolute -bottom-24 -right-24 w-[450px] h-[450px] rounded-full opacity-[0.06]"
+          className="absolute -bottom-24 -right-24 w-[450px] h-[450px] rounded-full opacity-[0.03]"
           style={{
-            background: "radial-gradient(circle, #2563eb 0%, transparent 70%)",
+            background: "radial-gradient(circle, #262626 0%, transparent 70%)",
             animation: reducedMotion ? "none" : "hero-blob-drift-2 22s ease-in-out infinite",
             willChange: "transform",
           }}
         />
         <div
           ref={blob3Ref}
-          className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[350px] h-[350px] rounded-full opacity-[0.05]"
+          className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[350px] h-[350px] rounded-full opacity-[0.02]"
           style={{
-            background: "radial-gradient(circle, #6366f1 0%, transparent 70%)",
+            background: "radial-gradient(circle, #404040 0%, transparent 70%)",
             animation: reducedMotion ? "none" : "hero-blob-drift-3 20s ease-in-out infinite",
             willChange: "transform",
           }}
@@ -129,8 +129,8 @@ export default function HeroSection() {
             background: `
               radial-gradient(
                 ellipse 320px 320px at var(--mx, 50%) var(--my, 50%),
-                rgba(124, 58, 237, 0.04) 0%,
-                rgba(99, 102, 241, 0.02) 40%,
+                rgba(10, 10, 10, 0.03) 0%,
+                rgba(40, 40, 40, 0.015) 40%,
                 transparent 70%
               )
             `,

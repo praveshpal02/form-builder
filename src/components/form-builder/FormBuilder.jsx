@@ -654,6 +654,7 @@ export default function FormBuilder({
       )}
 
       <FieldTypeModal
+        key={isFieldPickerOpen ? "open" : "closed"}
         isOpen={isFieldPickerOpen}
         onClose={() => setIsFieldPickerOpen(false)}
         onSelectType={handleSelectFieldType}

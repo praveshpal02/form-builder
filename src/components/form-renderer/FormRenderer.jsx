@@ -65,7 +65,7 @@ function checkFormClosed(settings, submissionCount, locale) {
   return { closed: false, message: "" };
 }
 
-export default function FormRenderer({ schema, formId, submissionCount = 0 }) {
+export default function FormRenderer({ schema, formId, submissionCount = 0, preview = false, onPreviewReset }) {
   const rawFields = useMemo(() => schema.fields || [], [schema.fields]);
   const settings = useMemo(() => schema.settings || {}, [schema.settings]);
   const locale = settings.locale || "en-IN";
@@ -106,11 +106,24 @@ export default function FormRenderer({ schema, formId, submissionCount = 0 }) {
     e.preventDefault();
     if (submitting) return;
     if (!validate()) return;
+
+    if (preview) {
+      setSubmitted(true);
+      return;
+    }
+
     setSubmitting(true); setSubmitError(null);
     try {
       const res = await fetch(`/api/forms/${formId}/submissions`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ response: values }) });
       const data = await res.json();
-      if (res.status === 201 && data.success) { setSubmitted(true); return; }
+      if (res.status === 201 && data.success) {
+        if (settings.redirectOnSubmit && settings.redirectUrl) {
+          window.location.href = settings.redirectUrl;
+          return;
+        }
+        setSubmitted(true);
+        return;
+      }
       if (res.status === 400 && data.errors) { setErrors(data.errors); return; }
       setSubmitError(data.error || formT("form.error", locale));
     } catch { setSubmitError(formT("form.error", locale)); } finally { setSubmitting(false); }

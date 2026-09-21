@@ -61,7 +61,6 @@ export default function FieldTypeModal({ isOpen, onClose, onSelectType }) {
     if (isOpen && inputRef.current) {
       setTimeout(() => inputRef.current?.focus(), 50);
     }
-    if (!isOpen) setSearch("");
   }, [isOpen]);
 
   const filteredCategories = useMemo(() => {
