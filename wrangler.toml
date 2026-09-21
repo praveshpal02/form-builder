@@ -1,0 +1,21 @@
+# Cloudflare Workers configuration for tally-form-builder
+# Docs: https://developers.cloudflare.com/workers/wrangler/configuration/
+
+name = "tally-form-builder"
+main = ".open-next/worker.js"
+compatibility_date = "2026-09-21"
+compatibility_flags = ["nodejs_compat"]
+
+# D1 Database binding
+# Replace YOUR_D1_DATABASE_ID with your actual D1 database ID after running:
+#   npx wrangler d1 create tally-form-builder
+[[d1_databases]]
+binding = "DB"
+database_name = "form-builder"
+database_id = "ec7825da-415a-4b9d-8e0c-5602f01864a3"
+migrations_dir = "d1-migrations"
+
+# Static assets
+[assets]
+directory = ".open-next/assets"
+binding = "ASSETS"
