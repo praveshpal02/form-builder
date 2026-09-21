@@ -8,16 +8,13 @@ export default function EditFormClient({
   formDescription,
   formSchema,
   formStatus,
-  formSlug,
 }) {
   return (
     <FormBuilder
-      mode="edit"
       formId={formId}
       initialSchema={formSchema}
       savedSchema={formSchema}
       formStatus={formStatus}
-      formSlug={formSlug}
       formDetails={{
         name: formTitle,
         description: formDescription,

@@ -1,17 +1,25 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { db } from "@/lib/db";
+import { getDb } from "@/lib/db";
+import { getUserFromRequest } from "@/lib/session";
 import SubmissionList from "@/components/submissions/SubmissionList";
+
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }) {
   const { id } = await params;
+  const user = await getUserFromRequest();
+  if (!user) {
+    return { title: "Responses | FormCraft" };
+  }
+  const db = getDb();
   const form = await db.form.findUnique({
     where: { id },
-    select: { title: true },
+    select: { title: true, userId: true },
   });
 
-  if (!form) {
-    return { title: "Form Not Found | FormCraft" };
+  if (!form || form.userId !== user.id) {
+    return { title: "Responses | FormCraft" };
   }
 
   return { title: `Responses — ${form.title} | FormCraft` };
@@ -19,10 +27,16 @@ export async function generateMetadata({ params }) {
 
 export default async function ResponsesPage({ params }) {
   const { id } = await params;
+  const user = await getUserFromRequest();
 
+  if (!user) {
+    notFound();
+  }
+
+  const db = getDb();
   const form = await db.form.findUnique({ where: { id } });
 
-  if (!form) {
+  if (!form || form.userId !== user.id) {
     notFound();
   }
 

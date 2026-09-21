@@ -1,4 +1,4 @@
-import { db } from "./db";
+import { getDb } from "./db";
 
 export function generateSlug(title) {
   return title
@@ -15,6 +15,7 @@ export async function ensureUniqueSlug(baseSlug, excludeId = null) {
   let counter = 2;
 
   while (true) {
+    const db = getDb();
     const existing = await db.form.findUnique({ where: { slug } });
     if (!existing || (excludeId && existing.id === excludeId)) {
       return slug;

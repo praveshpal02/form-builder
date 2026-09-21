@@ -45,6 +45,21 @@ const demoSchema = {
 };
 
 async function main() {
+  let demoUser = await prisma.user.findUnique({
+    where: { email: "demo@example.com" },
+  });
+
+  if (!demoUser) {
+    demoUser = await prisma.user.create({
+      data: {
+        name: "Demo User",
+        email: "demo@example.com",
+        passwordHash: "demo",
+      },
+    });
+    console.log("Demo user created:", demoUser.email);
+  }
+
   const demoForm = await prisma.form.upsert({
     where: { slug: "customer-feedback" },
     update: {
@@ -56,6 +71,7 @@ async function main() {
       description: "We would love to hear your feedback.",
       status: "published",
       schema: JSON.stringify(demoSchema),
+      userId: demoUser.id,
     },
   });
 

@@ -3,16 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --port 3001",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+    "preview": "opennextjs-cloudflare preview",
     "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "lint": "eslint",
     "postinstall": "prisma skills sync || exit 0",
     "db:seed": "node prisma/seed.js",
-    "db:migrate": "npx wrangler d1 migrations apply tally-form-builder --local",
-    "db:migrate:remote": "npx wrangler d1 migrations apply tally-form-builder --remote"
+    "db:migrate:remote": "npx wrangler d1 migrations apply tally-form-builder --remote",
+    "db:inspect": "npx wrangler d1 execute tally-form-builder --remote --command \"SELECT COUNT(*) as count FROM Form\""
   },
   "prisma": {
     "seed": "node prisma/seed.js"

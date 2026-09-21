@@ -1,6 +1,9 @@
 import { notFound } from "next/navigation";
-import { db } from "@/lib/db";
+import { getDb } from "@/lib/db";
+import { getUserFromRequest } from "@/lib/session";
 import EditFormClient from "@/components/form-builder/EditFormClient";
+
+export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Edit Form | FormCraft",
@@ -8,10 +11,16 @@ export const metadata = {
 
 export default async function EditFormPage({ params }) {
   const { id } = await params;
+  const user = await getUserFromRequest();
 
+  if (!user) {
+    notFound();
+  }
+
+  const db = getDb();
   const form = await db.form.findUnique({ where: { id } });
 
-  if (!form) {
+  if (!form || form.userId !== user.id) {
     notFound();
   }
 
@@ -24,7 +33,6 @@ export default async function EditFormPage({ params }) {
       formDescription={form.description}
       formSchema={parsedSchema}
       formStatus={form.status}
-      formSlug={form.slug}
     />
   );
 }

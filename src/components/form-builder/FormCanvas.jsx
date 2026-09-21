@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useCallback, useRef } from "react";
 import FieldCard from "./FieldCard";
 
 export default function FormCanvas({
@@ -15,7 +16,58 @@ export default function FormCanvas({
   onMoveField,
   onUpdateMeta,
   onOpenFieldPicker, // (insertIndex?: number) => void
+  showSubmitButton = true,
 }) {
+  const [draggedFieldId, setDraggedFieldId] = useState(null);
+  const [dragOverIndex, setDragOverIndex] = useState(null);
+  const dragOverTimeoutRef = useRef(null);
+
+  const handleDragStart = useCallback((e, fieldId) => {
+    setDraggedFieldId(fieldId);
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", fieldId);
+  }, []);
+
+  const handleDragEnd = useCallback(() => {
+    setDraggedFieldId(null);
+    setDragOverIndex(null);
+    if (dragOverTimeoutRef.current) {
+      clearTimeout(dragOverTimeoutRef.current);
+      dragOverTimeoutRef.current = null;
+    }
+  }, []);
+
+  const handleDragOver = useCallback((e, index) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    if (dragOverIndex !== index) {
+      setDragOverIndex(index);
+    }
+  }, [dragOverIndex]);
+
+  const handleDragLeave = useCallback((e, index) => {
+    // Only clear if leaving the actual drop zone, not a child element
+    if (!e.currentTarget.contains(e.relatedTarget)) {
+      dragOverTimeoutRef.current = setTimeout(() => {
+        setDragOverIndex(null);
+      }, 100);
+    }
+  }, []);
+
+  const handleDrop = useCallback((e, targetIndex) => {
+    e.preventDefault();
+    const droppedFieldId = e.dataTransfer.getData("text/plain");
+    if (droppedFieldId && droppedFieldId !== draggedFieldId) {
+      onMoveField(droppedFieldId, targetIndex);
+    }
+    setDraggedFieldId(null);
+    setDragOverIndex(null);
+    if (dragOverTimeoutRef.current) {
+      clearTimeout(dragOverTimeoutRef.current);
+      dragOverTimeoutRef.current = null;
+    }
+  }, [draggedFieldId, onMoveField]);
+
   return (
     <main
       aria-label="Form Canvas"
@@ -90,41 +142,73 @@ export default function FormCanvas({
           </div>
         ) : (
           /* Fields List */
-          <div className="space-y-4">
-            {fields.map((field, index) => (
-              <div key={field.id} className="space-y-2">
-                <FieldCard
-                  field={field}
-                  isSelected={field.id === selectedFieldId}
-                  onSelect={() => onSelectField(field.id === selectedFieldId ? null : field.id)}
-                  onUpdate={onUpdateField}
-                  onDelete={() => onDeleteField(field.id)}
-                  onDuplicate={() => onDuplicateField(field.id)}
-                  onMoveUp={() => onMoveField(field.id, "up")}
-                  onMoveDown={() => onMoveField(field.id, "down")}
-                  isFirst={index === 0}
-                  isLast={index === fields.length - 1}
-                />
+          <>
+            <div className="space-y-4" onDragOver={(e) => handleDragOver(e, 0)} onDrop={(e) => handleDrop(e, 0)}>
+              {fields.map((field, index) => (
+                <div key={field.id} className="space-y-2">
+                  <FieldCard
+                    field={field}
+                    isSelected={field.id === selectedFieldId}
+                    isDragging={draggedFieldId === field.id}
+                    onSelect={() => onSelectField(field.id === selectedFieldId ? null : field.id)}
+                    onUpdate={onUpdateField}
+                    onDelete={() => onDeleteField(field.id)}
+                    onDuplicate={() => onDuplicateField(field.id)}
+                    onMoveUp={() => onMoveField(field.id, "up")}
+                    onMoveDown={() => onMoveField(field.id, "down")}
+                    isFirst={index === 0}
+                    isLast={index === fields.length - 1}
+                    onDragStart={(e) => handleDragStart(e, field.id)}
+                    onDragEnd={handleDragEnd}
+                  />
 
-                {/* Subtle insert button between fields on hover/focus */}
-                <div className="group/insert relative py-1 flex items-center justify-center">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-transparent group-hover/insert:border-border transition-colors"></div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => onOpenFieldPicker(index + 1)}
-                    className="relative opacity-0 group-hover/insert:opacity-100 focus:opacity-100 inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1 text-[11px] font-medium text-muted-foreground hover:text-primary hover:border-primary transition-all shadow-xs"
+                  {/* Drop zone between fields - taller for easier dropping */}
+                  <div
+                    className={`group/insert relative py-3 flex items-center justify-center ${dragOverIndex === index + 1 ? "bg-primary/5 border-t-2 border-primary" : ""}`}
+                    onDragOver={(e) => handleDragOver(e, index + 1)}
+                    onDragLeave={(e) => handleDragLeave(e, index + 1)}
+                    onDrop={(e) => handleDrop(e, index + 1)}
                   >
-                    <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                    </svg>
-                    <span>Insert field</span>
-                  </button>
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-transparent group-hover/insert:border-border transition-colors"></div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => onOpenFieldPicker(index + 1)}
+                      className="relative opacity-0 group-hover/insert:opacity-100 focus:opacity-100 inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1 text-[11px] font-medium text-muted-foreground hover:text-primary hover:border-primary transition-all shadow-xs"
+                    >
+                      <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                      </svg>
+                      <span>Insert field</span>
+                    </button>
+                  </div>
                 </div>
+              ))}
+            </div>
+
+            {/* Drop zone at the end (after last field) - taller for easier dropping */}
+            <div
+              className={`group/insert relative py-3 flex items-center justify-center ${dragOverIndex === fields.length ? "bg-primary/5 border-t-2 border-primary" : ""}`}
+              onDragOver={(e) => handleDragOver(e, fields.length)}
+              onDragLeave={(e) => handleDragLeave(e, fields.length)}
+              onDrop={(e) => handleDrop(e, fields.length)}
+            >
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-transparent group-hover/insert:border-border transition-colors"></div>
               </div>
-            ))}
-          </div>
+              <button
+                type="button"
+                onClick={() => onOpenFieldPicker(fields.length)}
+                className="relative opacity-0 group-hover/insert:opacity-100 focus:opacity-100 inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1 text-[11px] font-medium text-muted-foreground hover:text-primary hover:border-primary transition-all shadow-xs"
+              >
+                <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                <span>Insert field at end</span>
+              </button>
+            </div>
+          </>
         )}
 
         {/* Bottom Prominent Add Field Button */}
@@ -144,7 +228,7 @@ export default function FormCanvas({
         )}
 
         {/* Submit Button Preview */}
-        {fields.length > 0 && (
+        {showSubmitButton && fields.length > 0 && (
           <div className="pt-8 border-t border-border flex items-center justify-between">
             <button
               type="button"

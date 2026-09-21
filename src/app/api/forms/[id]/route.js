@@ -1,11 +1,20 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { getDb } from "@/lib/db";
+import { getUserFromRequest } from "@/lib/session";
 import { validateFormSchema } from "@/lib/form-schema";
 import { generateSlug, ensureUniqueSlug } from "@/lib/slug";
+
+async function checkOwnership(db, formId, userId) {
+  const form = await db.form.findUnique({ where: { id: formId } });
+  if (!form) return { form: null, error: "Form not found", status: 404 };
+  if (form.userId !== userId) return { form: null, error: "Forbidden", status: 403 };
+  return { form, error: null, status: 200 };
+}
 
 export async function GET(_request, { params }) {
   try {
     const { id } = await params;
+    const db = getDb();
     const form = await db.form.findUnique({ where: { id } });
 
     if (!form) {
@@ -29,15 +38,26 @@ export async function GET(_request, { params }) {
 
 export async function PUT(request, { params }) {
   try {
-    const { id } = await params;
-    const existing = await db.form.findUnique({ where: { id } });
-
-    if (!existing) {
+    const user = await getUserFromRequest(request);
+    if (!user) {
       return NextResponse.json(
-        { success: false, error: "Form not found" },
-        { status: 404 }
+        { success: false, error: "Unauthorized" },
+        { status: 401 }
       );
     }
+
+    const { id } = await params;
+    const db = getDb();
+
+    const ownership = await checkOwnership(db, id, user.id);
+    if (ownership.error) {
+      return NextResponse.json(
+        { success: false, error: ownership.error },
+        { status: ownership.status }
+      );
+    }
+
+    const existing = ownership.form;
 
     let body;
     try {
@@ -92,6 +112,7 @@ export async function PUT(request, { params }) {
       form: { ...form, schema: JSON.parse(form.schema) },
     });
   } catch (error) {
+    console.error("Update form error:", error);
     return NextResponse.json(
       { success: false, error: "Failed to update form" },
       { status: 500 }
@@ -99,15 +120,24 @@ export async function PUT(request, { params }) {
   }
 }
 
-export async function DELETE(_request, { params }) {
+export async function DELETE(request, { params }) {
   try {
-    const { id } = await params;
-    const existing = await db.form.findUnique({ where: { id } });
-
-    if (!existing) {
+    const user = await getUserFromRequest(request);
+    if (!user) {
       return NextResponse.json(
-        { success: false, error: "Form not found" },
-        { status: 404 }
+        { success: false, error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    const { id } = await params;
+    const db = getDb();
+
+    const ownership = await checkOwnership(db, id, user.id);
+    if (ownership.error) {
+      return NextResponse.json(
+        { success: false, error: ownership.error },
+        { status: ownership.status }
       );
     }
 
@@ -115,6 +145,7 @@ export async function DELETE(_request, { params }) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
+    console.error("Delete form error:", error);
     return NextResponse.json(
       { success: false, error: "Failed to delete form" },
       { status: 500 }

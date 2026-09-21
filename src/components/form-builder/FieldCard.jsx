@@ -6,6 +6,7 @@ import { createOption } from "@/lib/form-schema";
 export default function FieldCard({
   field,
   isSelected,
+  isDragging = false,
   onSelect,
   onUpdate,
   onDelete,
@@ -14,6 +15,8 @@ export default function FieldCard({
   onMoveDown,
   isFirst,
   isLast,
+  onDragStart,
+  onDragEnd,
 }) {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
@@ -334,12 +337,35 @@ export default function FieldCard({
             onSelect();
           }
         }}
-        className="p-5 cursor-pointer text-left focus:outline-none"
+        className={`p-5 cursor-pointer text-left focus:outline-none ${isDragging ? "opacity-50 bg-primary/5" : ""}`}
+        style={isDragging ? { opacity: 0.5 } : undefined}
       >
         {/* Top meta row */}
         <div className="flex items-start justify-between gap-3 mb-2.5">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+                onMouseDown={(e) => {
+                  e.stopPropagation();
+                }}
+                draggable={true}
+                onDragStart={(e) => {
+                  onDragStart?.(e);
+                }}
+                onDragEnd={onDragEnd}
+                style={{ touchAction: "none" }}
+                className="flex items-center justify-center w-8 h-8 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors cursor-grab active:cursor-grabbing focus:outline-none focus:ring-2 focus:ring-primary"
+                title="Drag to reorder"
+                aria-label="Drag to reorder field"
+              >
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 10.5H19.5M4.5 15.75H19.5M4.5 5.25H19.5" />
+                </svg>
+              </button>
               <span className="font-semibold text-sm text-foreground">
                 {field.label || <span className="text-muted-foreground italic">Untitled question</span>}
               </span>

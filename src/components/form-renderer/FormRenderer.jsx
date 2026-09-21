@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import FieldRenderer from "./FieldRenderer";
 import { t as formT } from "@/lib/i18n/form-translations";
 
@@ -20,6 +20,15 @@ function getDefaultValue(field) {
     default:
       return "";
   }
+}
+
+function shuffleArray(array) {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
 }
 
 function validateField(field, value, locale) {
@@ -114,24 +123,68 @@ function validateField(field, value, locale) {
   return null;
 }
 
+function checkFormClosed(settings) {
+  if (!settings) return { closed: false, message: "" };
+
+  // Check close on date
+  if (settings.closeFormOnDate && settings.closeFormDate) {
+    const closeDate = new Date(settings.closeFormDate);
+    if (!isNaN(closeDate.getTime()) && new Date() > closeDate) {
+      return {
+        closed: true,
+        message: settings.closedFormMessage || "This form is no longer accepting responses.",
+      };
+    }
+  }
+
+  // Note: closeFormOnLimit requires server-side check
+  // Client-side only checks date-based closure
+
+  return { closed: false, message: "" };
+}
+
 export default function FormRenderer({ schema, formId }) {
-  const fields = useMemo(() => schema.fields || [], [schema.fields]);
+  const rawFields = useMemo(() => schema.fields || [], [schema.fields]);
   const settings = useMemo(() => schema.settings || {}, [schema.settings]);
   const locale = settings.locale || "en-IN";
 
+  // Apply shuffleFields setting
+  const displayFields = useMemo(() => {
+    if (settings.shuffleFields) {
+      return shuffleArray(rawFields);
+    }
+    return rawFields;
+  }, [rawFields, settings.shuffleFields]);
+
+  // Check if form is closed (date-based)
+  const formClosed = useMemo(() => checkFormClosed(settings), [settings]);
+
   const initialValues = useMemo(() => {
     const vals = {};
-    for (const field of fields) {
+    for (const field of displayFields) {
       vals[field.id] = getDefaultValue(field);
     }
     return vals;
-  }, [fields]);
+  }, [displayFields]);
 
   const [values, setValues] = useState(initialValues);
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
+
+  // Calculate progress for progress bar
+  const progress = useMemo(() => {
+    if (!settings.showProgressBar || displayFields.length === 0) return 0;
+    const answered = displayFields.filter((field) => {
+      const val = values[field.id];
+      if (field.type === "checkbox") return val === true;
+      if (field.type === "multiselect") return Array.isArray(val) && val.length > 0;
+      if (field.type === "rating") return val !== "" && val !== 0;
+      return val !== "" && val !== null && val !== undefined;
+    }).length;
+    return Math.round((answered / displayFields.length) * 100);
+  }, [values, displayFields, settings.showProgressBar]);
 
   const handleChange = (fieldId, newValue) => {
     setValues((prev) => ({ ...prev, [fieldId]: newValue }));
@@ -146,7 +199,7 @@ export default function FormRenderer({ schema, formId }) {
 
   const validate = () => {
     const newErrors = {};
-    for (const field of fields) {
+    for (const field of displayFields) {
       const error = validateField(field, values[field.id], locale);
       if (error) newErrors[field.id] = error;
     }
@@ -225,6 +278,35 @@ export default function FormRenderer({ schema, formId }) {
     );
   }
 
+  // Show closed form message if form is closed
+  if (formClosed.closed) {
+    return (
+      <div className="flex min-h-[calc(100vh-64px)] items-center justify-center bg-muted/30 px-4 py-10">
+        <div className="w-full max-w-lg">
+          <div className="rounded-xl border border-border bg-card p-8 shadow-sm text-center">
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-amber-100 mx-auto mb-4">
+              <svg
+                className="h-7 w-7 text-amber-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={2}
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"
+                />
+              </svg>
+            </div>
+            <h2 className="text-xl font-bold text-foreground mb-2">This form is closed</h2>
+            <p className="text-sm text-muted-foreground">{formClosed.message}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-[calc(100vh-64px)] items-start justify-center bg-muted/30 px-4 py-10">
       <div className="w-full max-w-lg">
@@ -240,7 +322,23 @@ export default function FormRenderer({ schema, formId }) {
             )}
           </div>
 
-          {fields.length === 0 ? (
+          {/* Progress Bar */}
+          {settings.showProgressBar && displayFields.length > 0 && (
+            <div className="mb-6" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100} aria-label="Form completion progress">
+              <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
+                <span>Progress</span>
+                <span>{progress}%</span>
+              </div>
+              <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-primary transition-all duration-300"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+            </div>
+          )}
+
+          {displayFields.length === 0 ? (
             <div className="py-12 text-center text-muted-foreground">
               <p className="text-sm">{formT("form.noFields", locale)}</p>
             </div>
@@ -255,7 +353,7 @@ export default function FormRenderer({ schema, formId }) {
                 </div>
               )}
 
-              {fields.map((field) => (
+              {displayFields.map((field) => (
                 <FieldRenderer
                   key={field.id}
                   field={field}

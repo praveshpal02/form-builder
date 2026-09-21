@@ -1,12 +1,48 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { getDb } from "@/lib/db";
+import { getUserFromRequest } from "@/lib/session";
 import { validateFormSchema } from "@/lib/form-schema";
 import { validateFormResponse } from "@/lib/form-validation";
 import { sendAdminNotification, sendRespondentConfirmation } from "@/lib/email";
 
+async function checkOwnership(db, formId, userId) {
+  const form = await db.form.findUnique({ where: { id: formId } });
+  if (!form) return { form: null, error: "Form not found", status: 404 };
+  if (form.userId !== userId) return { form: null, error: "Forbidden", status: 403 };
+  return { form, error: null, status: 200 };
+}
+
+function checkFormClosed(settings, submissionCount) {
+  if (!settings) return { closed: false, message: "" };
+
+  // Check close on date
+  if (settings.closeFormOnDate && settings.closeFormDate) {
+    const closeDate = new Date(settings.closeFormDate);
+    if (!isNaN(closeDate.getTime()) && new Date() > closeDate) {
+      return {
+        closed: true,
+        message: settings.closedFormMessage || "This form is no longer accepting responses.",
+      };
+    }
+  }
+
+  // Check close on response limit
+  if (settings.closeFormOnLimit && settings.responseLimit) {
+    if (submissionCount >= settings.responseLimit) {
+      return {
+        closed: true,
+        message: settings.closedFormMessage || "This form is no longer accepting responses.",
+      };
+    }
+  }
+
+  return { closed: false, message: "" };
+}
+
 export async function POST(request, { params }) {
   try {
     const { id } = await params;
+    const db = getDb();
 
     const form = await db.form.findUnique({ where: { id } });
 
@@ -59,6 +95,25 @@ export async function POST(request, { params }) {
       );
     }
 
+    const settings = schema.settings || {};
+
+    // ── Server-side closing conditions check ────────────────────────
+    const submissionCount = await db.formSubmission.count({ where: { formId: id } });
+    const formClosed = checkFormClosed(settings, submissionCount);
+    if (formClosed.closed) {
+      return NextResponse.json(
+        { success: false, error: formClosed.message },
+        { status: 403 }
+      );
+    }
+
+    // ── Allow Multiple Submissions check ────────────────────────────
+    // Note: This is a simplified check - in production you'd track by IP, cookie, or user
+    if (!settings.allowMultipleSubmissions) {
+      // For now we don't enforce this server-side without user identification
+      // The frontend handles this, but server-side would need session/user tracking
+    }
+
     const { valid, errors } = validateFormResponse(schema, body.response);
     if (!valid) {
       return NextResponse.json(
@@ -75,7 +130,6 @@ export async function POST(request, { params }) {
     });
 
     // ── Email notifications (non-blocking) ────────────────────────
-    const settings = schema.settings || {};
     const notificationEmails = Array.isArray(settings.notificationEmails)
       ? settings.notificationEmails.filter(
           (e) => typeof e === "string" && e.includes("@")
@@ -145,16 +199,24 @@ export async function POST(request, { params }) {
   }
 }
 
-export async function GET(_request, { params }) {
+export async function GET(request, { params }) {
   try {
     const { id } = await params;
+    const db = getDb();
 
-    const form = await db.form.findUnique({ where: { id } });
-
-    if (!form) {
+    const user = await getUserFromRequest(request);
+    if (!user) {
       return NextResponse.json(
-        { success: false, error: "Form not found" },
-        { status: 404 }
+        { success: false, error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    const ownership = await checkOwnership(db, id, user.id);
+    if (ownership.error) {
+      return NextResponse.json(
+        { success: false, error: ownership.error },
+        { status: ownership.status }
       );
     }
 

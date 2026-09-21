@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   createEmptyFormSchema,
 } from "@/lib/form-schema";
@@ -10,13 +11,13 @@ import {
   getAllFormTemplates,
   cloneTemplateSchema,
 } from "@/lib/form-templates";
-import FormBuilder from "./FormBuilder";
 
 function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
 }
 
 export default function NewFormWizard() {
+  const router = useRouter();
   const [step, setStep] = useState("method");
   const [creationMethod, setCreationMethod] = useState(null);
   const [selectedTemplateId, setSelectedTemplateId] = useState(null);
@@ -28,7 +29,7 @@ export default function NewFormWizard() {
   });
   const [emailInput, setEmailInput] = useState("");
   const [formErrors, setFormErrors] = useState({});
-  const [initialSchema, setInitialSchema] = useState(null);
+  const [isCreating, setIsCreating] = useState(false);
 
   const templates = useMemo(() => getAllFormTemplates(), []);
   const selectedTemplate = selectedTemplateId
@@ -124,8 +125,10 @@ export default function NewFormWizard() {
     return Object.keys(errors).length === 0;
   };
 
-  const handleContinueToBuilder = () => {
+  const handleContinueToBuilder = async () => {
     if (!validateDetails()) return;
+    setIsCreating(true);
+    setFormErrors({});
 
     let schema;
     if (creationMethod === "template" && selectedTemplate) {
@@ -134,23 +137,55 @@ export default function NewFormWizard() {
       schema = createEmptyFormSchema();
     }
 
-    setInitialSchema(schema);
-    setStep("builder");
+    // Apply form details to schema
+    schema.title = formDetails.name;
+    schema.description = formDetails.description || "";
+    schema.settings = {
+      ...schema.settings,
+      subject: formDetails.subject,
+      notificationEmails: formDetails.notificationEmails,
+    };
+
+    try {
+      const res = await fetch("/api/forms", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: formDetails.name,
+          description: formDetails.description || "",
+          schema: schema,
+          status: "draft",
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success || !data.form?.id) {
+        throw new Error(data.error || "Failed to create form");
+      }
+
+      // Navigate to editor with the created form ID
+      router.push(`/forms/${data.form.id}/edit`);
+    } catch (err) {
+      setFormErrors({ submit: err.message || "Failed to create form. Please try again." });
+      setIsCreating(false);
+    }
   };
 
   const handleBackToMethod = () => {
     setStep("method");
     setCreationMethod(null);
     setSelectedTemplateId(null);
-    setInitialSchema(null);
   };
 
-  if (step === "builder" && initialSchema) {
+  if (isCreating) {
     return (
-      <FormBuilder
-        initialSchema={initialSchema}
-        formDetails={formDetails}
-      />
+      <div className="min-h-[calc(100vh-4rem)] bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent mx-auto mb-4" />
+          <p className="text-muted-foreground">Creating your form...</p>
+        </div>
+      </div>
     );
   }
 
@@ -450,14 +485,21 @@ export default function NewFormWizard() {
               </div>
             </div>
 
+            {formErrors.submit && (
+              <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 mb-4">
+                {formErrors.submit}
+              </div>
+            )}
+
             {/* Continue Button */}
             <div className="flex justify-end pt-4 border-t border-border">
               <button
                 type="button"
                 onClick={handleContinueToBuilder}
-                className="rounded-xl bg-primary px-6 py-2.5 text-sm font-medium text-white hover:bg-primary-hover transition-colors shadow-xs"
+                disabled={isCreating}
+                className="rounded-xl bg-primary px-6 py-2.5 text-sm font-medium text-white hover:bg-primary-hover transition-colors shadow-xs disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Continue to Builder
+                {isCreating ? "Creating..." : "Continue to Builder"}
               </button>
             </div>
           </div>

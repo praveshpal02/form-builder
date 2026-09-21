@@ -1,8 +1,26 @@
+import { notFound } from "next/navigation";
+import { getDb } from "@/lib/db";
+import { getUserFromRequest } from "@/lib/session";
+
 export const metadata = {
   title: "Preview Form | FormCraft",
 };
 
-export default function PreviewFormPage({ params }) {
+export default async function PreviewFormPage({ params }) {
+  const { id } = await params;
+  const user = await getUserFromRequest();
+
+  if (!user) {
+    notFound();
+  }
+
+  const db = getDb();
+  const form = await db.form.findUnique({ where: { id } });
+
+  if (!form || form.userId !== user.id) {
+    notFound();
+  }
+
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
       <div className="mb-6 flex items-center justify-between">
@@ -13,7 +31,7 @@ export default function PreviewFormPage({ params }) {
           </p>
         </div>
         <a
-          href={`/forms/${params.id}/edit`}
+          href={`/forms/${id}/edit`}
           className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium transition-colors hover:bg-muted"
         >
           Back to Editor
