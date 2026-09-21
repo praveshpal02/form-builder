@@ -15,7 +15,7 @@ export default function FormCanvas({
   onDuplicateField,
   onMoveField,
   onUpdateMeta,
-  onOpenFieldPicker, // (insertIndex?: number) => void
+  onOpenFieldPicker,
   showSubmitButton = true,
 }) {
   const [draggedFieldId, setDraggedFieldId] = useState(null);
@@ -46,7 +46,6 @@ export default function FormCanvas({
   }, [dragOverIndex]);
 
   const handleDragLeave = useCallback((e, index) => {
-    // Only clear if leaving the actual drop zone, not a child element
     if (!e.currentTarget.contains(e.relatedTarget)) {
       dragOverTimeoutRef.current = setTimeout(() => {
         setDragOverIndex(null);
@@ -71,22 +70,21 @@ export default function FormCanvas({
   return (
     <main
       aria-label="Form Canvas"
-      className="flex-1 overflow-y-auto p-4 sm:p-8 flex justify-center bg-background"
+      className="flex-1 overflow-y-auto p-5 sm:p-8 flex justify-center bg-background"
       onClick={() => onSelectField(null)}
     >
       <div
-        className="w-full max-w-2xl flex flex-col space-y-8 self-start min-h-[550px] pb-24"
+        className="w-full max-w-2xl flex flex-col space-y-6 self-start min-h-[500px] pb-24"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Form Header (Editable Title & Description) */}
-        <div className="space-y-3 pt-4">
+        <div className="space-y-2 pt-2">
           <input
             type="text"
             value={title || ""}
             onChange={(e) => onUpdateMeta("title", e.target.value)}
             placeholder="Untitled Form"
             aria-label="Form Title"
-            className="w-full text-3xl sm:text-4xl font-bold tracking-tight text-foreground bg-transparent border-b border-transparent hover:border-border focus:border-primary focus:outline-none transition-colors py-1.5 placeholder:text-muted-foreground/30"
+            className="w-full text-2xl sm:text-3xl font-semibold tracking-tight text-foreground bg-transparent border-b border-transparent hover:border-border focus:border-foreground/20 focus:outline-none transition-colors py-1 placeholder:text-muted-foreground/40"
           />
           <textarea
             rows={2}
@@ -94,58 +92,55 @@ export default function FormCanvas({
             onChange={(e) => onUpdateMeta("description", e.target.value)}
             placeholder="Add a description or instructions for respondents..."
             aria-label="Form Description"
-            className="w-full text-base text-muted-foreground bg-transparent border-b border-transparent hover:border-border focus:border-primary focus:outline-none transition-colors py-1 resize-none placeholder:text-muted-foreground/30"
+            className="w-full text-sm text-muted-foreground bg-transparent border-b border-transparent hover:border-border focus:border-foreground/20 focus:outline-none transition-colors py-1 resize-none placeholder:text-muted-foreground/40"
           />
         </div>
 
-        {/* Top Add Field Button (when fields already exist) */}
         {fields.length > 0 && (
           <div className="flex justify-start">
             <button
               type="button"
               onClick={() => onOpenFieldPicker(0)}
-              className="inline-flex items-center gap-2 rounded-xl border border-dashed border-border px-4 py-2 text-xs font-medium text-muted-foreground hover:text-foreground hover:border-primary/60 hover:bg-card transition-all"
+              className="inline-flex items-center gap-1.5 rounded-md border border-dashed border-border px-3 py-1.5 text-[12px] font-medium text-muted-foreground hover:text-foreground hover:border-foreground/30 hover:bg-white transition-all"
             >
-              <svg className="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+              <svg className="h-3.5 w-3.5 text-primary" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
               </svg>
-              <span>Add Field at Top</span>
+              <span>Add at top</span>
             </button>
           </div>
         )}
 
-        {/* Empty State */}
         {fields.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-border py-16 px-6 text-center bg-card/50 shadow-2xs">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary mb-4">
-              <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
+          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-16 px-6 text-center bg-white">
+            <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-muted text-muted-foreground mb-3">
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
               </svg>
             </div>
-            <h3 className="text-lg font-semibold text-foreground">
+            <h3 className="text-[15px] font-medium text-foreground">
               Start building your form
             </h3>
-            <p className="text-sm text-muted-foreground mt-1 max-w-sm">
+            <p className="text-[13px] text-muted-foreground mt-1 max-w-sm">
               Add your first question to begin crafting your form.
             </p>
 
             <button
               type="button"
               onClick={() => onOpenFieldPicker(0)}
-              className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-white hover:bg-primary-hover shadow-xs transition-colors"
+              className="mt-5 inline-flex items-center gap-1.5 rounded-md bg-foreground px-4 py-2 text-[13px] font-medium text-white hover:bg-foreground/90 transition-colors"
             >
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
+              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
               </svg>
               <span>Add Field</span>
             </button>
           </div>
         ) : (
-          /* Fields List */
           <>
-            <div className="space-y-4" onDragOver={(e) => handleDragOver(e, 0)} onDrop={(e) => handleDrop(e, 0)}>
+            <div className="space-y-2" onDragOver={(e) => handleDragOver(e, 0)} onDrop={(e) => handleDrop(e, 0)}>
               {fields.map((field, index) => (
-                <div key={field.id} className="space-y-2">
+                <div key={field.id} className="space-y-1.5">
                   <FieldCard
                     field={field}
                     isSelected={field.id === selectedFieldId}
@@ -162,64 +157,61 @@ export default function FormCanvas({
                     onDragEnd={handleDragEnd}
                   />
 
-                  {/* Drop zone between fields - taller for easier dropping */}
                   <div
-                    className={`group/insert relative py-3 flex items-center justify-center ${dragOverIndex === index + 1 ? "bg-primary/5 border-t-2 border-primary" : ""}`}
+                    className={`group/insert relative py-2 flex items-center justify-center ${dragOverIndex === index + 1 ? "bg-primary/5 border-t-2 border-primary" : ""}`}
                     onDragOver={(e) => handleDragOver(e, index + 1)}
                     onDragLeave={(e) => handleDragLeave(e, index + 1)}
                     onDrop={(e) => handleDrop(e, index + 1)}
                   >
                     <div className="absolute inset-0 flex items-center">
-                      <div className="w-full border-t border-transparent group-hover/insert:border-border transition-colors"></div>
+                      <div className="w-full border-t border-transparent group-hover/insert:border-border transition-colors" />
                     </div>
                     <button
                       type="button"
                       onClick={() => onOpenFieldPicker(index + 1)}
-                      className="relative opacity-0 group-hover/insert:opacity-100 focus:opacity-100 inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1 text-[11px] font-medium text-muted-foreground hover:text-primary hover:border-primary transition-all shadow-xs"
+                      className="relative opacity-0 group-hover/insert:opacity-100 focus:opacity-100 inline-flex items-center gap-1 rounded-full border border-border bg-white px-2.5 py-0.5 text-[10px] font-medium text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-all"
                     >
-                      <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
+                      <svg className="h-2.5 w-2.5" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                       </svg>
-                      <span>Insert field</span>
+                      <span>Insert</span>
                     </button>
                   </div>
                 </div>
               ))}
             </div>
 
-            {/* Drop zone at the end (after last field) - taller for easier dropping */}
             <div
-              className={`group/insert relative py-3 flex items-center justify-center ${dragOverIndex === fields.length ? "bg-primary/5 border-t-2 border-primary" : ""}`}
+              className={`group/insert relative py-2 flex items-center justify-center ${dragOverIndex === fields.length ? "bg-primary/5 border-t-2 border-primary" : ""}`}
               onDragOver={(e) => handleDragOver(e, fields.length)}
               onDragLeave={(e) => handleDragLeave(e, fields.length)}
               onDrop={(e) => handleDrop(e, fields.length)}
             >
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-transparent group-hover/insert:border-border transition-colors"></div>
+                <div className="w-full border-t border-transparent group-hover/insert:border-border transition-colors" />
               </div>
               <button
                 type="button"
                 onClick={() => onOpenFieldPicker(fields.length)}
-                className="relative opacity-0 group-hover/insert:opacity-100 focus:opacity-100 inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1 text-[11px] font-medium text-muted-foreground hover:text-primary hover:border-primary transition-all shadow-xs"
+                className="relative opacity-0 group-hover/insert:opacity-100 focus:opacity-100 inline-flex items-center gap-1 rounded-full border border-border bg-white px-2.5 py-0.5 text-[10px] font-medium text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-all"
               >
-                <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
+                <svg className="h-2.5 w-2.5" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                 </svg>
-                <span>Insert field at end</span>
+                <span>Insert at end</span>
               </button>
             </div>
           </>
         )}
 
-        {/* Bottom Prominent Add Field Button */}
         {fields.length > 0 && (
-          <div className="pt-2">
+          <div className="pt-1">
             <button
               type="button"
               onClick={() => onOpenFieldPicker(fields.length)}
-              className="w-full flex items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-border/80 hover:border-primary py-4 text-sm font-medium text-muted-foreground hover:text-primary bg-card/30 hover:bg-card transition-all"
+              className="w-full flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-border hover:border-foreground/30 py-3.5 text-[13px] font-medium text-muted-foreground hover:text-foreground bg-white/50 hover:bg-white transition-all"
             >
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
               </svg>
               <span>Add Field</span>
@@ -227,18 +219,17 @@ export default function FormCanvas({
           </div>
         )}
 
-        {/* Submit Button Preview */}
         {showSubmitButton && fields.length > 0 && (
-          <div className="pt-8 border-t border-border flex items-center justify-between">
+          <div className="pt-6 border-t border-border flex items-center justify-between">
             <button
               type="button"
               disabled
-              className="rounded-xl bg-primary px-6 py-2.5 text-sm font-medium text-white opacity-90 cursor-not-allowed shadow-xs"
+              className="rounded-md bg-foreground px-5 py-2 text-[13px] font-medium text-white opacity-90 cursor-not-allowed"
             >
               {settings?.submitButtonText || "Submit"}
             </button>
-            <span className="text-xs text-muted-foreground italic">
-              Form Preview mode
+            <span className="text-[11px] text-muted-foreground italic">
+              Form Preview
             </span>
           </div>
         )}

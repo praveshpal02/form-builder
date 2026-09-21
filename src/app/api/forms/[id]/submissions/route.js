@@ -5,6 +5,9 @@ import { validateFormSchema } from "@/lib/form-schema";
 import { validateFormResponse } from "@/lib/form-validation";
 import { sendAdminNotification, sendRespondentConfirmation } from "@/lib/email";
 
+const SUBMISSION_COOKIE_PREFIX = "fc_sub_";
+const SUBMISSION_COOKIE_MAX_AGE = 60 * 60 * 24 * 365; // 1 year
+
 async function checkOwnership(db, formId, userId) {
   const form = await db.form.findUnique({ where: { id: formId } });
   if (!form) return { form: null, error: "Form not found", status: 404 };
@@ -108,10 +111,23 @@ export async function POST(request, { params }) {
     }
 
     // ── Allow Multiple Submissions check ────────────────────────────
-    // Note: This is a simplified check - in production you'd track by IP, cookie, or user
-    if (!settings.allowMultipleSubmissions) {
-      // For now we don't enforce this server-side without user identification
-      // The frontend handles this, but server-side would need session/user tracking
+    if (settings.allowMultipleSubmissions === false) {
+      const submissionCookieName = `${SUBMISSION_COOKIE_PREFIX}${id}`;
+      let hasSubmitted = false;
+
+      if (request.cookies && request.cookies.get) {
+        hasSubmitted = Boolean(request.cookies.get(submissionCookieName)?.value);
+      } else if (request.headers) {
+        const cookieHeader = request.headers.get("cookie") || "";
+        hasSubmitted = cookieHeader.includes(`${submissionCookieName}=`);
+      }
+
+      if (hasSubmitted) {
+        return NextResponse.json(
+          { success: false, error: "You have already submitted this form." },
+          { status: 403 }
+        );
+      }
     }
 
     const { valid, errors } = validateFormResponse(schema, body.response);
@@ -187,10 +203,23 @@ export async function POST(request, { params }) {
       }
     }
 
-    return NextResponse.json(
+    const response = NextResponse.json(
       { success: true, submissionId: submission.id },
       { status: 201 }
     );
+
+    if (settings.allowMultipleSubmissions === false) {
+      const submissionCookieName = `${SUBMISSION_COOKIE_PREFIX}${id}`;
+      response.cookies.set(submissionCookieName, "1", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: SUBMISSION_COOKIE_MAX_AGE,
+        path: "/",
+      });
+    }
+
+    return response;
   } catch (error) {
     return NextResponse.json(
       { success: false, error: "Unable to submit the form." },

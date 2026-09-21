@@ -72,7 +72,7 @@ export default function FormsListClient({ forms: initialForms }) {
             </p>
           </div>
 
-          <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="flex items-center gap-1 shrink-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
             <button
               type="button"
               onClick={() => router.push(`/forms/${form.id}/edit`)}

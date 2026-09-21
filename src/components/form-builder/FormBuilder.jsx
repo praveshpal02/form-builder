@@ -467,7 +467,7 @@ export default function FormBuilder({
         />
       ) : (
         <div className="flex-1 overflow-y-auto p-5 sm:p-8 flex justify-center bg-background">
-          <div className="w-full max-w-lg space-y-6 self-start pt-4">
+          <div className="w-full max-w-2xl space-y-6 self-start pt-4">
             <div className="rounded-lg border border-border bg-white p-5">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-[13px] font-semibold text-foreground">

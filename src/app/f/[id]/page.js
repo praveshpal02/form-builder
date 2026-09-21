@@ -28,7 +28,7 @@ export default async function PublicFormPage({ params }) {
     notFound();
   }
 
-  return <PublicFormClient form={form} />;
+  return <PublicFormClient form={form} submissionCount={form.submissionCount || 0} />;
 }
 
 export async function generateMetadata({ params }) {

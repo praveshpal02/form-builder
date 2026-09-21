@@ -24,9 +24,18 @@ export async function GET(_request, { params }) {
       );
     }
 
+    if (form.status !== "published") {
+      return NextResponse.json(
+        { success: false, error: "Form not found" },
+        { status: 404 }
+      );
+    }
+
+    const submissionCount = await db.formSubmission.count({ where: { formId: id } });
+
     return NextResponse.json({
       success: true,
-      form: { ...form, schema: JSON.parse(form.schema) },
+      form: { ...form, schema: JSON.parse(form.schema), submissionCount },
     });
   } catch (error) {
     return NextResponse.json(
