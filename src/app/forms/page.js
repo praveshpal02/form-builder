@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getDb } from "@/lib/db";
 import { getUserFromRequest } from "@/lib/session";
 import FormsListClient from "@/components/FormsListClient";
+import { Icon } from "@/components/ui/Icon";
 
 export const dynamic = "force-dynamic";
 
@@ -17,15 +18,13 @@ export default async function FormsPage() {
       <div className="mx-auto max-w-[1200px] px-5 py-16">
         <div className="text-center py-16">
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-muted mb-4">
-            <svg className="h-6 w-6 text-muted-foreground" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-            </svg>
+            <Icon name="fileText" size="lg" className="text-muted-foreground" aria-hidden="true" />
           </div>
           <h1 className="text-lg font-semibold tracking-tight">Sign in to view your forms</h1>
           <p className="text-sm text-muted-foreground mt-1.5">You need to be signed in to access this page.</p>
           <Link
             href="/login"
-            className="mt-5 inline-flex items-center justify-center rounded-md bg-foreground px-4 py-2 text-[13px] font-medium text-white transition-colors hover:bg-foreground/90"
+            className="mt-5 inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-[13px] font-medium text-white transition-colors hover:bg-primary-hover"
           >
             Sign In
           </Link>
@@ -65,11 +64,9 @@ export default async function FormsPage() {
         </div>
         <Link
           href="/forms/new"
-          className="inline-flex items-center gap-1.5 rounded-md bg-foreground px-4 py-2 text-[13px] font-medium text-white transition-colors hover:bg-foreground/90"
+          className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-[13px] font-medium text-white transition-colors hover:bg-primary-hover"
         >
-          <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-          </svg>
+          <Icon name="plus" size="sm" aria-hidden="true" />
           New Form
         </Link>
       </div>
@@ -77,9 +74,7 @@ export default async function FormsPage() {
       {serialized.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-20">
           <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-muted text-muted-foreground mb-3">
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-            </svg>
+            <Icon name="plus" size="md" className="text-muted-foreground" aria-hidden="true" />
           </div>
           <h3 className="text-[15px] font-medium">No forms yet</h3>
           <p className="text-sm text-muted-foreground mt-1">
@@ -87,11 +82,9 @@ export default async function FormsPage() {
           </p>
           <Link
             href="/forms/new"
-            className="mt-5 inline-flex items-center gap-1.5 rounded-md bg-foreground px-4 py-2 text-[13px] font-medium text-white transition-colors hover:bg-foreground/90"
+            className="mt-5 inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-[13px] font-medium text-white transition-colors hover:bg-primary-hover"
           >
-            <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-            </svg>
+            <Icon name="plus" size="sm" aria-hidden="true" />
             Create Form
           </Link>
         </div>

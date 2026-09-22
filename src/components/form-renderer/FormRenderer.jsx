@@ -3,12 +3,15 @@
 import { useState, useMemo, useEffect } from "react";
 import FieldRenderer from "./FieldRenderer";
 import { t as formT } from "@/lib/i18n/form-translations";
+import { Icon } from "@/components/ui/Icon";
 
 function getDefaultValue(field) {
+  if (field.type === "banner") return null;
   if (field.defaultValue !== undefined && field.defaultValue !== null) return field.defaultValue;
   switch (field.type) {
     case "checkbox": return false;
     case "multiselect": return [];
+    case "file": return [];
     case "rating": return "";
     case "number": return "";
     default: return "";
@@ -22,12 +25,14 @@ function shuffleArray(array) {
 }
 
 function validateField(field, value, locale) {
+  if (field.type === "banner") return null;
   const v = value;
   if (field.required) {
     if (field.type === "checkbox" && !v) return formT("validation.required", locale);
     if (field.type === "multiselect" && (!Array.isArray(v) || v.length === 0)) return formT("validation.selectAtLeastOne", locale);
+    if (field.type === "file" && (!Array.isArray(v) || v.length === 0)) return formT("validation.required", locale);
     if (field.type === "rating" && (v === "" || v === 0)) return formT("validation.provideRating", locale);
-    if (field.type !== "checkbox" && field.type !== "multiselect" && field.type !== "rating") {
+    if (field.type !== "checkbox" && field.type !== "multiselect" && field.type !== "rating" && field.type !== "file") {
       if (v === "" || v === null || v === undefined) return formT("validation.required", locale);
     }
   }
@@ -79,15 +84,17 @@ export default function FormRenderer({ schema, formId, submissionCount = 0, prev
   const [submitError, setSubmitError] = useState(null);
 
   const progress = useMemo(() => {
-    if (!settings.showProgressBar || displayFields.length === 0) return 0;
-    const answered = displayFields.filter((field) => {
+    if (!settings.showProgressBar) return 0;
+    const inputFields = displayFields.filter((f) => f.type !== "banner");
+    if (inputFields.length === 0) return 0;
+    const answered = inputFields.filter((field) => {
       const val = values[field.id];
       if (field.type === "checkbox") return val === true;
       if (field.type === "multiselect") return Array.isArray(val) && val.length > 0;
       if (field.type === "rating") return val !== "" && val !== 0;
       return val !== "" && val !== null && val !== undefined;
     }).length;
-    return Math.round((answered / displayFields.length) * 100);
+    return Math.round((answered / inputFields.length) * 100);
   }, [values, displayFields, settings.showProgressBar]);
 
   const handleChange = (fieldId, newValue) => {
@@ -135,18 +142,14 @@ export default function FormRenderer({ schema, formId, submissionCount = 0, prev
         <div className="w-full max-w-lg">
           <div className="rounded-lg border border-border bg-white p-8 shadow-sm text-center">
             <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-success-bg mx-auto mb-4">
-              <svg className="h-6 w-6 text-success" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-              </svg>
+              <Icon name="checkCircle" size="lg" className="text-success" aria-hidden="true" />
             </div>
             <h2 className="text-lg font-semibold text-foreground mb-1.5">{settings.successMessage || formT("form.success", locale)}</h2>
             <p className="text-[13px] text-muted-foreground">{formT("form.recorded", locale)}</p>
             {preview && (
               <button type="button" onClick={() => { setSubmitted(false); setValues(initialValues); setErrors({}); if (onPreviewReset) onPreviewReset(); }}
                 className="mt-4 inline-flex items-center gap-1.5 rounded-md border border-border bg-white px-4 py-2 text-[13px] font-medium text-foreground hover:bg-muted transition-colors">
-                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182" />
-                </svg>
+                <Icon name="rotateCcw" size="sm" strokeWidth={2} aria-hidden="true" />
                 Submit another response
               </button>
             )}
@@ -162,9 +165,7 @@ export default function FormRenderer({ schema, formId, submissionCount = 0, prev
         <div className="w-full max-w-lg">
           <div className="rounded-lg border border-border bg-white p-8 shadow-sm text-center">
             <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-warning-bg mx-auto mb-4">
-              <svg className="h-6 w-6 text-warning" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-              </svg>
+              <Icon name="alertTriangle" size="lg" className="text-warning" aria-hidden="true" />
             </div>
             <h2 className="text-lg font-semibold text-foreground mb-1.5">{formT("form.closedTitle", locale)}</h2>
             <p className="text-[13px] text-muted-foreground">{formClosed.message}</p>
@@ -189,7 +190,7 @@ export default function FormRenderer({ schema, formId, submissionCount = 0, prev
                 <span>Progress</span><span>{progress}%</span>
               </div>
               <div className="h-1 rounded-full bg-muted overflow-hidden">
-                <div className="h-full rounded-full bg-foreground transition-all duration-300" style={{ width: `${progress}%` }} />
+                <div className="h-full rounded-full bg-primary transition-all duration-300" style={{ width: `${progress}%` }} />
               </div>
             </div>
           )}
@@ -200,10 +201,10 @@ export default function FormRenderer({ schema, formId, submissionCount = 0, prev
             <form onSubmit={handleSubmit} noValidate lang={locale} className="space-y-5">
               {submitError && <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2.5 text-[13px] text-red-700" role="alert">{submitError}</div>}
               {displayFields.map((field) => (
-                <FieldRenderer key={field.id} field={field} value={values[field.id]} onChange={(v) => handleChange(field.id, v)} error={errors[field.id]} locale={locale} />
+                <FieldRenderer key={field.id} field={field} value={values[field.id]} onChange={(v) => handleChange(field.id, v)} error={errors[field.id]} locale={locale} formId={formId} disabled={submitting} />
               ))}
               <div className="pt-1">
-                <button type="submit" disabled={submitting} className="w-full rounded-md bg-foreground px-6 py-2.5 text-[13px] font-medium text-white hover:bg-foreground/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                <button type="submit" disabled={submitting} className="w-full rounded-md bg-primary px-6 py-2.5 text-[13px] font-medium text-white hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                   {submitting ? formT("form.submitting", locale) : settings.submitButtonText || formT("form.submit", locale)}
                 </button>
               </div>

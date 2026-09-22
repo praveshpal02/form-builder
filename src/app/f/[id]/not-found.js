@@ -15,7 +15,7 @@ export default function NotFound() {
         </p>
         <Link
           href="/forms"
-          className="inline-flex items-center justify-center rounded-md bg-foreground px-6 py-2.5 text-sm font-medium text-white hover:bg-foreground/90 transition-colors shadow-xs"
+          className="inline-flex items-center justify-center rounded-md bg-primary px-6 py-2.5 text-sm font-medium text-white hover:bg-primary-hover transition-colors shadow-xs"
         >
           Go to Forms
         </Link>

@@ -20,3 +20,8 @@ remote = true
 [assets]
 directory = ".open-next/assets"
 binding = "ASSETS"
+
+# R2 Object Storage for file uploads
+[[r2_buckets]]
+binding = "FORM_UPLOADS"
+bucket_name = "form-builder-uploads"

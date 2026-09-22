@@ -14,6 +14,7 @@ export const SUPPORTED_FIELD_TYPES = [
   "phone",
   "url",
   "rating",
+  "banner",
 ];
 
 let fieldCounter = 0;
@@ -81,6 +82,9 @@ const FIELD_DEFAULTS = {
   rating: {
     maxRating: 5,
   },
+  banner: {
+    imageUrl: "",
+  },
 };
 
 const FIELD_LABELS = {
@@ -99,11 +103,21 @@ const FIELD_LABELS = {
   phone: "Phone Number",
   url: "Website / URL",
   rating: "Rating",
+  banner: "Banner",
 };
 
 export function createField(type, overrides = {}) {
   if (!SUPPORTED_FIELD_TYPES.includes(type)) {
     throw new Error(`Unsupported field type: ${type}`);
+  }
+
+  if (type === "banner") {
+    const base = {
+      id: generateFieldId(),
+      type: "banner",
+      imageUrl: "",
+    };
+    return { ...base, ...overrides, id: overrides.id || base.id, type: "banner" };
   }
 
   const base = {
@@ -196,6 +210,8 @@ export function validateFormSchema(schema) {
 
     if (!field.type) {
       errors.push(`${prefix}: Type is required`);
+    } else if (field.type === "banner") {
+      // Banner is a content block, skip input validation
     } else if (!SUPPORTED_FIELD_TYPES.includes(field.type)) {
       errors.push(`${prefix}: Unsupported type "${field.type}"`);
     }

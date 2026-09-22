@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createEmptyFormSchema } from "@/lib/form-schema";
 import { getFormTemplate, getAllFormTemplates, cloneTemplateSchema } from "@/lib/form-templates";
+import { Icon } from "@/components/ui/Icon";
 
 function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
@@ -97,7 +98,7 @@ export default function NewFormWizard() {
     return (
       <div className="min-h-[calc(100vh-3.5rem)] bg-background flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-10 w-10 border-2 border-foreground border-t-transparent mx-auto mb-3" />
+          <div className="animate-spin rounded-full h-10 w-10 border-2 border-primary border-t-transparent mx-auto mb-3" />
           <p className="text-[13px] text-muted-foreground">Creating your form...</p>
         </div>
       </div>
@@ -121,21 +122,17 @@ export default function NewFormWizard() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <button type="button" onClick={handleSelectBlank}
-                className="group flex flex-col items-start p-5 rounded-lg border border-border hover:border-foreground/20 bg-white hover:bg-muted/20 text-left transition-all hover:shadow-sm">
-                <div className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-muted text-muted-foreground mb-3 group-hover:bg-foreground/10 group-hover:text-foreground transition-colors">
-                  <svg className="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                  </svg>
+                className="group flex flex-col items-start p-5 rounded-lg border border-border hover:border-primary/40 bg-white hover:bg-primary-soft/40 text-left transition-all hover:shadow-sm">
+                <div className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-primary-soft text-primary mb-3 group-hover:bg-primary group-hover:text-white transition-colors">
+                  <Icon name="plus" size="md" aria-hidden="true" />
                 </div>
                 <h2 className="text-[15px] font-medium text-foreground">Blank Form</h2>
                 <p className="text-[13px] text-muted-foreground mt-0.5">Start from scratch</p>
               </button>
               <button type="button" onClick={() => setStep("templates")}
-                className="group flex flex-col items-start p-5 rounded-lg border border-border hover:border-foreground/20 bg-white hover:bg-muted/20 text-left transition-all hover:shadow-sm">
-                <div className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-muted text-muted-foreground mb-3 group-hover:bg-foreground/10 group-hover:text-foreground transition-colors">
-                  <svg className="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z" />
-                  </svg>
+                className="group flex flex-col items-start p-5 rounded-lg border border-border hover:border-primary/40 bg-white hover:bg-primary-soft/40 text-left transition-all hover:shadow-sm">
+                <div className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-primary-soft text-primary mb-3 group-hover:bg-primary group-hover:text-white transition-colors">
+                  <Icon name="fileText" size="md" aria-hidden="true" />
                 </div>
                 <h2 className="text-[15px] font-medium text-foreground">Use a Template</h2>
                 <p className="text-[13px] text-muted-foreground mt-0.5">Get started quickly with a pre-built form</p>
@@ -149,9 +146,7 @@ export default function NewFormWizard() {
             <div>
               <button type="button" onClick={() => { setStep("method"); setCreationMethod(null); setSelectedTemplateId(null); }}
                 className="flex items-center gap-1 text-[12px] font-medium text-muted-foreground hover:text-foreground transition-colors mb-4">
-                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-                </svg>
+                <Icon name="arrowLeft" size="sm" strokeWidth={2} aria-hidden="true" />
                 Back
               </button>
               <h1 className="text-xl sm:text-2xl font-semibold text-foreground tracking-tight">Choose a Template</h1>
@@ -173,7 +168,7 @@ export default function NewFormWizard() {
                     </div>
                   </div>
                   <button type="button" onClick={() => handleSelectTemplate(tpl.id)}
-                    className="shrink-0 rounded-md bg-foreground px-4 py-1.5 text-[13px] font-medium text-white hover:bg-foreground/90 transition-colors">
+                    className="shrink-0 rounded-md bg-primary px-4 py-1.5 text-[13px] font-medium text-white hover:bg-primary-hover transition-colors">
                     Use Template
                   </button>
                 </div>
@@ -187,9 +182,7 @@ export default function NewFormWizard() {
             <div>
               <button type="button" onClick={creationMethod === "template" ? () => setStep("templates") : () => { setStep("method"); setCreationMethod(null); }}
                 className="flex items-center gap-1 text-[12px] font-medium text-muted-foreground hover:text-foreground transition-colors mb-4">
-                <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-                </svg>
+                <Icon name="arrowLeft" size="sm" strokeWidth={2} aria-hidden="true" />
                 Back
               </button>
               <h1 className="text-xl sm:text-2xl font-semibold text-foreground tracking-tight">Form Details</h1>
@@ -201,19 +194,19 @@ export default function NewFormWizard() {
               <div>
                 <label htmlFor="form-name" className="block text-[13px] font-medium text-foreground mb-1">Form Name <span className="text-destructive">*</span></label>
                 <input id="form-name" type="text" value={formDetails.name} onChange={(e) => handleDetailsChange("name", e.target.value)} placeholder="e.g. Customer Feedback Survey"
-                  className={`w-full rounded-md border bg-white px-3 py-2 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-foreground/20 transition-colors ${formErrors.name ? "border-destructive focus:border-destructive" : "border-border focus:border-foreground/30"}`} />
+                  className={`w-full rounded-md border bg-white px-3 py-2 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary/30 transition-colors ${formErrors.name ? "border-destructive focus:border-destructive" : "border-border focus:border-primary/40"}`} />
                 {formErrors.name && <p className="text-[12px] text-destructive mt-1">{formErrors.name}</p>}
               </div>
               <div>
                 <label htmlFor="form-subject" className="block text-[13px] font-medium text-foreground mb-1">Subject <span className="text-destructive">*</span></label>
                 <input id="form-subject" type="text" value={formDetails.subject} onChange={(e) => handleDetailsChange("subject", e.target.value)} placeholder="e.g. New submission received"
-                  className={`w-full rounded-md border bg-white px-3 py-2 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-foreground/20 transition-colors ${formErrors.subject ? "border-destructive focus:border-destructive" : "border-border focus:border-foreground/30"}`} />
+                  className={`w-full rounded-md border bg-white px-3 py-2 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary/30 transition-colors ${formErrors.subject ? "border-destructive focus:border-destructive" : "border-border focus:border-primary/40"}`} />
                 {formErrors.subject && <p className="text-[12px] text-destructive mt-1">{formErrors.subject}</p>}
               </div>
               <div>
                 <label htmlFor="form-description" className="block text-[13px] font-medium text-foreground mb-1">Description</label>
                 <textarea id="form-description" rows={3} value={formDetails.description} onChange={(e) => handleDetailsChange("description", e.target.value)} placeholder="Optional description for respondents"
-                  className="w-full rounded-md border border-border bg-white px-3 py-2 text-[13px] text-foreground focus:border-foreground/30 focus:outline-none focus:ring-1 focus:ring-foreground/20 resize-none transition-colors" />
+                  className="w-full rounded-md border border-border bg-white px-3 py-2 text-[13px] text-foreground focus:border-primary/40 focus:outline-none focus:ring-1 focus:ring-primary/30 resize-none transition-colors" />
               </div>
               <div>
                 <label className="block text-[13px] font-medium text-foreground mb-1">Notification Emails</label>
@@ -221,14 +214,10 @@ export default function NewFormWizard() {
                 <div className="space-y-1.5">
                   {formDetails.notificationEmails.map((email, index) => (
                     <div key={index} className="flex items-center gap-2 rounded-md border border-border bg-muted/30 px-3 py-1.5">
-                      <svg className="h-3.5 w-3.5 text-muted-foreground shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
-                      </svg>
+                      <Icon name="mail" size="sm" className="text-muted-foreground shrink-0" aria-hidden="true" />
                       <span className="flex-1 text-[13px] text-foreground">{email}</span>
                       <button type="button" onClick={() => handleRemoveEmail(index)} className="p-0.5 text-muted-foreground hover:text-destructive rounded hover:bg-muted transition-colors">
-                        <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
+                        <Icon name="x" size="sm" strokeWidth={2} aria-hidden="true" />
                       </button>
                     </div>
                   ))}
@@ -236,7 +225,7 @@ export default function NewFormWizard() {
                 <div className="flex items-center gap-2 mt-2">
                   <input type="email" value={emailInput} onChange={(e) => { setEmailInput(e.target.value); setFormErrors((prev) => { const next = { ...prev }; delete next.email; return next; }); }}
                     onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleAddEmail(); } }} placeholder="admin@example.com"
-                    className={`flex-1 rounded-md border bg-white px-3 py-1.5 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-foreground/20 transition-colors ${formErrors.email ? "border-destructive focus:border-destructive" : "border-border focus:border-foreground/30"}`} />
+                    className={`flex-1 rounded-md border bg-white px-3 py-1.5 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary/30 transition-colors ${formErrors.email ? "border-destructive focus:border-destructive" : "border-border focus:border-primary/40"}`} />
                   <button type="button" onClick={handleAddEmail} className="shrink-0 rounded-md border border-border bg-white px-3 py-1.5 text-[13px] font-medium text-foreground hover:bg-muted transition-colors">Add</button>
                 </div>
                 {formErrors.email && <p className="text-[12px] text-destructive mt-1">{formErrors.email}</p>}
@@ -245,7 +234,7 @@ export default function NewFormWizard() {
             {formErrors.submit && <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2.5 text-[13px] text-red-700">{formErrors.submit}</div>}
             <div className="flex justify-end pt-3 border-t border-border">
               <button type="button" onClick={handleContinueToBuilder} disabled={isCreating}
-                className="rounded-md bg-foreground px-5 py-2 text-[13px] font-medium text-white hover:bg-foreground/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                className="rounded-md bg-primary px-5 py-2 text-[13px] font-medium text-white hover:bg-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                 {isCreating ? "Creating..." : "Continue to Builder"}
               </button>
             </div>

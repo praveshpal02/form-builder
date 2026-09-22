@@ -160,7 +160,7 @@ Because the layout is stored data (not code), any saved design can be re-rendere
 - Slugs: the `Form.slug` column is kept for uniqueness/URL compatibility, but the public URL is **ID-based** (`/f/{id}`). Slugs are auto-generated on first publish if missing and never changed on re-publish.
 - The public GET endpoint returns **published forms only**; drafts/unpublished forms are not viewable via the public link.
 - A form row is created upfront in the wizard so the editor always operates on a real, persistent record (no orphaned local drafts).
-- File (upload) fields are represented in the schema and previewed as a drop-box; actual file upload to object storage is out of scope for this assignment.
+- File (upload) fields upload attachments to **Cloudflare R2** via `POST /api/forms/[id]/upload`, store per-file metadata (`key`, `name`, `size`, `type`, `url`) in the submission `response`, and serve the bytes back through `GET /api/forms/[id]/files/[key]`. The R2 binding is `FORM_UPLOADS` (bucket `form-builder-uploads`).
 - Email notifications degrade gracefully: if `RESEND_API_KEY` is empty, form submissions still save; emails are skipped.
 - The legacy `/api/forms/slug/[slug]` route is retained but unused — the public route is `/f/{id}`.
 
@@ -195,8 +195,9 @@ database_id = "YOUR_D1_DATABASE_ID"
 ```
 
 4. Apply migrations: `npm run db:migrate` (local) and `npm run db:migrate:remote` (production)
-5. Preview locally: `npm run preview`
-6. Deploy: `npm run deploy`
+5. Create the R2 bucket for file uploads: `npx wrangler r2 bucket create form-builder-uploads`
+6. Preview locally: `npm run preview`
+7. Deploy: `npm run deploy`
 
 Wrangler outputs your Worker URL after deploy (e.g. `https://tally-form-builder.xxx.workers.dev`).
 

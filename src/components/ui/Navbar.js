@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { Icon } from "./Icon";
+import { useToast } from "./Toast";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -11,6 +13,7 @@ export default function Navbar() {
   const [loading, setLoading] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const toast = useToast();
 
   useEffect(() => {
     fetch("/api/auth/me")
@@ -31,7 +34,7 @@ export default function Navbar() {
       router.push("/login");
       router.refresh();
     } catch {
-      // silent
+      toast.error("Failed to sign out. Please try again.");
     }
     setMenuOpen(false);
     setMobileMenuOpen(false);
@@ -46,7 +49,7 @@ export default function Navbar() {
       <header className="sticky top-0 z-50 border-b border-border bg-white/80 backdrop-blur-md">
         <div className="mx-auto flex h-14 max-w-[1200px] items-center justify-between px-5">
           <Link href="/" className="flex items-center gap-2.5" aria-label="FormCraft Home">
-            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-foreground text-white text-xs font-bold tracking-tight" aria-hidden="true">
+            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-white text-xs font-bold tracking-tight" aria-hidden="true">
               F
             </div>
             <span className="text-sm font-semibold tracking-tight text-foreground">FormCraft</span>
@@ -60,7 +63,7 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 border-b border-border bg-white/80 backdrop-blur-md">
       <div className="mx-auto flex h-14 max-w-[1200px] items-center justify-between px-5">
         <Link href="/" className="flex items-center gap-2.5" aria-label="FormCraft Home">
-          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-foreground text-white text-xs font-bold tracking-tight" aria-hidden="true">
+          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-white text-xs font-bold tracking-tight" aria-hidden="true">
             F
           </div>
           <span className="text-sm font-semibold tracking-tight text-foreground">FormCraft</span>
@@ -78,7 +81,7 @@ export default function Navbar() {
                 </Link>
                 <Link
                   href="/forms/new"
-                  className="ml-1 rounded-md bg-foreground px-3.5 py-1.5 text-[13px] font-medium text-white transition-colors hover:bg-foreground/90"
+                  className="ml-1 rounded-md bg-primary px-3.5 py-1.5 text-[13px] font-medium text-white transition-colors hover:bg-primary-hover"
                 >
                   New Form
                 </Link>
@@ -91,9 +94,7 @@ export default function Navbar() {
                     aria-label="User menu"
                   >
                     <span className="hidden sm:block truncate max-w-[120px]">{user.name}</span>
-                    <svg className="h-3.5 w-3.5 text-muted-foreground" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                    </svg>
+                    <Icon name="chevronDown" size="sm" className="text-muted-foreground" aria-hidden="true" />
                   </button>
                   {menuOpen && (
                     <>
@@ -128,7 +129,7 @@ export default function Navbar() {
                 </Link>
                 <Link
                   href="/signup"
-                  className="ml-1 rounded-md bg-foreground px-3.5 py-1.5 text-[13px] font-medium text-white transition-colors hover:bg-foreground/90"
+                  className="ml-1 rounded-md bg-primary px-3.5 py-1.5 text-[13px] font-medium text-white transition-colors hover:bg-primary-hover"
                 >
                   Get Started
                 </Link>
@@ -144,13 +145,9 @@ export default function Navbar() {
             aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
           >
             {mobileMenuOpen ? (
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <Icon name="x" size="md" aria-hidden="true" />
             ) : (
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12" />
-              </svg>
+              <Icon name="menu" size="md" aria-hidden="true" />
             )}
           </button>
         </nav>
@@ -179,7 +176,7 @@ export default function Navbar() {
                 </Link>
                 <Link
                   href="/forms/new"
-                  className="block px-3 py-2 rounded-md text-[13px] font-medium text-foreground bg-foreground/5 hover:bg-foreground/10 transition-colors"
+                  className="block px-3 py-2 rounded-md text-[13px] font-medium text-primary bg-primary-soft hover:bg-primary-border transition-colors"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   New Form
@@ -202,7 +199,7 @@ export default function Navbar() {
                 </Link>
                 <Link
                   href="/signup"
-                  className="block px-3 py-2 rounded-md text-[13px] font-medium text-foreground bg-foreground/5 hover:bg-foreground/10 transition-colors"
+                  className="block px-3 py-2 rounded-md text-[13px] font-medium text-primary bg-primary-soft hover:bg-primary-border transition-colors"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Get Started

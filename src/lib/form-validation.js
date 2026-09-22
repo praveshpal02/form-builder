@@ -17,8 +17,7 @@ function validateFieldValue(field, value) {
       const num = Number(v);
       if (isBlank(v) || isNaN(num) || num < 1) return "Please provide a rating.";
     } else if (field.type === "file") {
-      // File fields cannot be validated server-side from JSON submissions
-      return null;
+      if (!Array.isArray(v) || v.length === 0) return "Please upload at least one file.";
     } else {
       if (isBlank(v)) return "This field is required.";
     }
@@ -120,9 +119,15 @@ function validateFieldValue(field, value) {
       if (num > max) return `Rating must be at most ${max}.`;
       break;
     }
-    case "file":
-      // Skip file validation for JSON submissions
-      return null;
+    case "file": {
+      if (!Array.isArray(v)) return "Must be a list of files.";
+      const maxFiles = field.maxFiles || 1;
+      if (v.length > maxFiles) return `Maximum ${maxFiles} file${maxFiles !== 1 ? "s" : ""} allowed.`;
+      const maxSizeMB = field.maxSizeMB || 10;
+      const bad = v.find((f) => typeof f !== "object" || f === null || typeof f.name !== "string" || typeof f.size !== "number" || f.size > maxSizeMB * 1024 * 1024);
+      if (bad) return "One of the uploaded files is invalid or exceeds the size limit.";
+      break;
+    }
     default:
       break;
   }

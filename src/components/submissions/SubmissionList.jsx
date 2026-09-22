@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import SubmissionDetail from "./SubmissionDetail";
+import { Icon } from "@/components/ui/Icon";
+import { useToast } from "@/components/ui/Toast";
 
 function getFieldLabel(field) { return field.label || field.id; }
 function getOptionLabel(field, value) { if (!field.options) return value; const opt = field.options.find((o) => o.value === value); return opt ? opt.label || value : value; }
@@ -13,7 +15,9 @@ function formatValue(field, value) {
     case "select": case "radio": return getOptionLabel(field, value);
     case "multiselect": return Array.isArray(value) ? value.map((v) => getOptionLabel(field, v)).join(", ") : String(value);
     case "rating": return `${value} / ${field.maxRating || 5}`;
-    case "file": return "File not stored";
+    case "file":
+      if (!Array.isArray(value) || value.length === 0) return "";
+      return `${value.length} file${value.length === 1 ? "" : "s"}: ${value.map((f) => f.name || "file").join(", ")}`;
     default: return String(value);
   }
 }
@@ -35,13 +39,22 @@ function getSummary(fields, response) {
 export default function SubmissionList({ formId, submissions: initialSubmissions, fields, formTitle, formStatus }) {
   const [submissions, setSubmissions] = useState(initialSubmissions);
   const [selectedId, setSelectedId] = useState(null);
+  const toast = useToast();
 
   const handleDelete = async (submissionId) => {
     if (!window.confirm("Are you sure you want to delete this response?")) return;
     try {
       const res = await fetch(`/api/forms/${formId}/submissions/${submissionId}`, { method: "DELETE" });
-      if (res.ok) { setSubmissions((prev) => prev.filter((s) => s.id !== submissionId)); if (selectedId === submissionId) setSelectedId(null); }
-    } catch {}
+      if (res.ok) {
+        setSubmissions((prev) => prev.filter((s) => s.id !== submissionId));
+        if (selectedId === submissionId) setSelectedId(null);
+        toast.success("Response deleted successfully.");
+      } else {
+        toast.error("Failed to delete response.");
+      }
+    } catch {
+      toast.error("Failed to delete response.");
+    }
   };
 
   const selectedSubmission = submissions.find((s) => s.id === selectedId);
@@ -65,9 +78,7 @@ export default function SubmissionList({ formId, submissions: initialSubmissions
           {submissions.length === 0 ? (
             <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-16">
               <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-muted text-muted-foreground mb-3">
-                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 9v.906a2.25 2.25 0 01-1.183 1.981l-6.478 3.488M2.25 9v.906a2.25 2.25 0 001.183 1.981l6.478 3.488m8.839 2.51l-4.66-2.51m0 0l-1.023-.55a2.25 2.25 0 00-2.134 0l-1.022.55m0 0l-4.661 2.51" />
-                </svg>
+                <Icon name="messageSquare" size="md" className="text-muted-foreground" aria-hidden="true" />
               </div>
               <h3 className="text-[15px] font-medium text-foreground">No responses yet</h3>
               <p className="text-[13px] text-muted-foreground mt-1 text-center max-w-sm">Responses will appear here once people start submitting your form.</p>
