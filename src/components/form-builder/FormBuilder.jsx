@@ -11,6 +11,7 @@ import FormCanvas from "./FormCanvas";
 import FormPreview from "./FormPreview";
 import FieldTypeModal from "./FieldTypeModal";
 import FormSettingsModal from "./FormSettingsModal";
+import ThemeDrawer from "./ThemeDrawer";
 import { Icon } from "@/components/ui/Icon";
 import { useToast } from "@/components/ui/Toast";
 
@@ -44,6 +45,7 @@ export default function FormBuilder({
   const [isFieldPickerOpen, setIsFieldPickerOpen] = useState(false);
   const [fieldInsertIndex, setFieldInsertIndex] = useState(null);
   const [isFormSettingsOpen, setIsFormSettingsOpen] = useState(false);
+  const [isThemeDrawerOpen, setIsThemeDrawerOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("customize");
 
   const [saveState, setSaveState] = useState("idle");
@@ -231,6 +233,27 @@ export default function FormBuilder({
     setIsFieldPickerOpen(true);
   };
 
+  const handleTabChange = (tabId) => {
+    if (tabId === "preview") {
+      if (!validation.valid) {
+        const invalidOptionField = formSchema.fields.find(
+          (f) =>
+            ["select", "radio", "multiselect"].includes(f.type) &&
+            (!Array.isArray(f.options) || f.options.length === 0)
+        );
+        if (invalidOptionField) {
+          toast.error("Add at least one option to complete this field.");
+          setSelectedFieldId(invalidOptionField.id);
+          return;
+        }
+        toast.error("Fix the remaining validation errors before previewing.");
+        setActiveTab("customize");
+        return;
+      }
+    }
+    setActiveTab(tabId);
+  };
+
   const handleSelectFieldType = (type) => {
     const newField = createField(type);
     const targetIdx =
@@ -247,71 +270,65 @@ export default function FormBuilder({
     setSelectedFieldId(newField.id);
   };
 
-  const handleUpdateField = (fieldId, updates) => {
+  const handleUpdateField = useCallback((fieldId, updates) => {
     setFormSchema((prev) => ({
       ...prev,
       fields: prev.fields.map((field) =>
         field.id === fieldId ? { ...field, ...updates } : field
       ),
     }));
-  };
+  }, []);
 
-  const handleDeleteField = (fieldId) => {
+  const handleDeleteField = useCallback((fieldId) => {
     setFormSchema((prev) => ({
       ...prev,
       fields: prev.fields.filter((field) => field.id !== fieldId),
     }));
-    if (selectedFieldId === fieldId) {
-      setSelectedFieldId(null);
-    }
+    setSelectedFieldId((prev) => (prev === fieldId ? null : prev));
     toast.info("Field removed.");
-  };
+  }, [toast]);
 
-  const handleDuplicateField = (fieldId) => {
-    const index = formSchema.fields.findIndex((f) => f.id === fieldId);
-    if (index === -1) return;
+  const handleDuplicateField = useCallback((fieldId) => {
+    setFormSchema((prev) => {
+      const index = prev.fields.findIndex((f) => f.id === fieldId);
+      if (index === -1) return prev;
 
-    const original = formSchema.fields[index];
-    const duplicated = createField(original.type, {
-      ...original,
-      id: undefined,
-      label: `${original.label || "Field"} (Copy)`,
+      const original = prev.fields[index];
+      const duplicated = createField(original.type, {
+        ...original,
+        id: undefined,
+        label: `${original.label || "Field"} (Copy)`,
+      });
+
+      const newFields = [...prev.fields];
+      newFields.splice(index + 1, 0, duplicated);
+      return { ...prev, fields: newFields };
     });
+    setSelectedFieldId(fieldId);
+  }, []);
 
-    const newFields = [...formSchema.fields];
-    newFields.splice(index + 1, 0, duplicated);
+  const handleMoveField = useCallback((fieldId, directionOrTargetIndex) => {
+    setFormSchema((prev) => {
+      const index = prev.fields.findIndex((f) => f.id === fieldId);
+      if (index === -1) return prev;
 
-    setFormSchema((prev) => ({
-      ...prev,
-      fields: newFields,
-    }));
-    setSelectedFieldId(duplicated.id);
-  };
+      let targetIndex;
+      if (typeof directionOrTargetIndex === "number") {
+        targetIndex = directionOrTargetIndex;
+      } else {
+        targetIndex = directionOrTargetIndex === "up" ? index - 1 : index + 1;
+      }
 
-  const handleMoveField = (fieldId, directionOrTargetIndex) => {
-    const index = formSchema.fields.findIndex((f) => f.id === fieldId);
-    if (index === -1) return;
+      if (targetIndex < 0 || targetIndex > prev.fields.length) return prev;
 
-    let targetIndex;
-    if (typeof directionOrTargetIndex === "number") {
-      targetIndex = directionOrTargetIndex;
-    } else {
-      targetIndex = directionOrTargetIndex === "up" ? index - 1 : index + 1;
-    }
+      const newFields = [...prev.fields];
+      const [movedItem] = newFields.splice(index, 1);
+      newFields.splice(targetIndex, 0, movedItem);
+      return { ...prev, fields: newFields };
+    });
+  }, []);
 
-    if (targetIndex < 0 || targetIndex > formSchema.fields.length) return;
-
-    const newFields = [...formSchema.fields];
-    const [movedItem] = newFields.splice(index, 1);
-    newFields.splice(targetIndex, 0, movedItem);
-
-    setFormSchema((prev) => ({
-      ...prev,
-      fields: newFields,
-    }));
-  };
-
-  const handleUpdateMeta = (key, value) => {
+  const handleUpdateMeta = useCallback((key, value) => {
     const settingsKeys = ["subject", "notificationEmails", "locale"];
     if (settingsKeys.includes(key)) {
       setFormSchema((prev) => ({
@@ -327,13 +344,13 @@ export default function FormBuilder({
         [key]: value,
       }));
     }
-  };
+  }, []);
 
-  const handleUpdateBanner = (imageUrl) => {
+  const handleUpdateBanner = useCallback((imageUrl) => {
     setFormSchema((prev) => ({ ...prev, banner: imageUrl || null }));
-  };
+  }, []);
 
-  const handleUpdateSettings = (key, value) => {
+  const handleUpdateSettings = useCallback((key, value) => {
     setFormSchema((prev) => ({
       ...prev,
       settings: {
@@ -341,7 +358,7 @@ export default function FormBuilder({
         [key]: value,
       },
     }));
-  };
+  }, []);
 
   const isPublished = formStatus === "published";
 
@@ -383,7 +400,7 @@ export default function FormBuilder({
             <button
               key={tab.id}
               type="button"
-              onClick={() => setActiveTab(tab.id)}
+              onClick={() => handleTabChange(tab.id)}
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium rounded-md transition-colors ${
                 activeTab === tab.id
                   ? "bg-primary-soft text-primary"
@@ -419,7 +436,7 @@ export default function FormBuilder({
               <button
                 key={tab.id}
                 type="button"
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => handleTabChange(tab.id)}
                 className={`px-2 py-1 text-[11px] font-medium rounded transition-colors ${
                   activeTab === tab.id
                     ? "bg-primary-soft text-primary"
@@ -430,6 +447,15 @@ export default function FormBuilder({
               </button>
             ))}
           </nav>
+
+          <button
+            type="button"
+            onClick={() => setIsThemeDrawerOpen(true)}
+            className="inline-flex items-center gap-1 rounded-md border border-border bg-white px-2.5 py-1.5 text-[12px] font-medium text-foreground hover:bg-muted transition-colors"
+          >
+            <Icon name="palette" size="sm" className="text-muted-foreground" aria-hidden="true" />
+            <span className="hidden sm:inline">Customize</span>
+          </button>
 
           <button
             type="button"
@@ -654,6 +680,13 @@ export default function FormBuilder({
         settings={formSchema.settings}
         onUpdateMeta={handleUpdateMeta}
         onUpdateSettings={handleUpdateSettings}
+      />
+
+      <ThemeDrawer
+        isOpen={isThemeDrawerOpen}
+        onClose={() => setIsThemeDrawerOpen(false)}
+        theme={formSchema.settings?.theme}
+        onUpdateTheme={(theme) => handleUpdateSettings("theme", theme)}
       />
     </div>
   );

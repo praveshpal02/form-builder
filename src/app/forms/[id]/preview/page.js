@@ -1,6 +1,7 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getDb } from "@/lib/db";
 import { getUserFromRequest } from "@/lib/session";
+import { validateFormSchema } from "@/lib/form-schema";
 import FormPreview from "@/components/form-builder/FormPreview";
 
 export const metadata = {
@@ -23,6 +24,10 @@ export default async function PreviewFormPage({ params }) {
   }
 
   const schema = JSON.parse(form.schema);
+
+  if (!validateFormSchema(schema).valid) {
+    redirect(`/forms/${id}/edit`);
+  }
 
   return <FormPreview title={schema.title} description={schema.description} banner={schema.banner} fields={schema.fields || []} settings={schema.settings || {}} />;
 }

@@ -55,8 +55,8 @@ export default async function FormsPage() {
 
   return (
     <div className="mx-auto max-w-[1200px] px-5 py-10 sm:py-14">
-      <div className="flex items-center justify-between mb-8">
-        <div>
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-8">
+        <div className="min-w-0">
           <h1 className="text-xl font-semibold tracking-tight">My Forms</h1>
           <p className="text-sm text-muted-foreground mt-0.5">
             Manage and organize all your forms.
@@ -64,7 +64,7 @@ export default async function FormsPage() {
         </div>
         <Link
           href="/forms/new"
-          className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-[13px] font-medium text-white transition-colors hover:bg-primary-hover"
+          className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-[13px] font-medium text-white transition-colors hover:bg-primary-hover shrink-0"
         >
           <Icon name="plus" size="sm" aria-hidden="true" />
           New Form

@@ -178,18 +178,18 @@ export default function FieldRenderer({ field, value, onChange, error, locale = 
   const descId = `${fieldId}-desc`;
   const describedBy = [field.description ? descId : null, error ? errorId : null].filter(Boolean).join(" ") || undefined;
 
-  const baseInputClasses = "w-full rounded-md border bg-white px-3 py-2 text-[13px] focus:outline-none focus:ring-1 transition-colors";
+  const baseInputClasses = "w-full rounded-md border px-3 py-2 text-[13px] focus:outline-none focus:ring-1 transition-colors";
   const inputClasses = error
-    ? `${baseInputClasses} border-destructive focus:border-destructive`
-    : `${baseInputClasses} border-border focus:border-primary/40`;
+    ? `${baseInputClasses} focus:border-destructive`
+    : `${baseInputClasses} focus:border-accent`;
 
   const themeInputStyle = {
-    backgroundColor: "var(--form-bg, #ffffff)",
+    backgroundColor: "var(--form-input-bg, #ffffff)",
     color: "var(--form-text, #171717)",
-    borderColor: error ? undefined : undefined,
+    borderColor: error ? "var(--form-accent, #dc2626)" : "var(--form-input-border, #E5E7EB)",
   };
 
-  const themeFocusRing = { "--tw-ring-color": "color-mix(in srgb, var(--form-accent, #7957FF) 30%, transparent)" };
+  const themeFocusRing = { "--tw-ring-color": "color-mix(in srgb, var(--form-accent, #7957FF) 20%, transparent)" };
 
   function renderField() {
     switch (field.type) {
@@ -217,31 +217,31 @@ export default function FieldRenderer({ field, value, onChange, error, locale = 
         const selected = Array.isArray(value) ? value : [];
         return (
           <div className="space-y-1.5">
-            <div className="flex flex-wrap gap-1.5 rounded-md border border-border bg-white p-2.5 min-h-[38px]">
+            <div className="flex flex-wrap gap-1.5 rounded-md p-2.5 min-h-[38px]" style={{ border: "1px solid var(--form-input-border, #E5E7EB)", backgroundColor: "var(--form-input-bg, #ffffff)" }}>
               {selected.length > 0 ? selected.map((v) => {
                 const opt = (field.options || []).find((o) => o.value === v);
                 return (
-                  <span key={v} className="inline-flex items-center gap-1 rounded bg-primary-soft px-2 py-0.5 text-[12px] font-medium text-primary">
+                  <span key={v} className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-[12px] font-medium" style={{ backgroundColor: "color-mix(in srgb, var(--form-accent, #7957FF) 12%, transparent)", color: "var(--form-accent, #7957FF)" }}>
                     {opt?.label || v}
-                    <button type="button" onClick={() => onChange(selected.filter((s) => s !== v))} className="ml-0.5 rounded hover:bg-primary/20 p-0.5" aria-label={`Remove ${opt?.label || v}`}>
+                    <button type="button" onClick={() => onChange(selected.filter((s) => s !== v))} className="ml-0.5 rounded p-0.5" style={{ color: "var(--form-accent, #7957FF)" }} aria-label={`Remove ${opt?.label || v}`}>
                       <Icon name="x" size="xs" strokeWidth={2} aria-hidden="true" />
                     </button>
                   </span>
                 );
-              }) : <span className="text-[12px] text-muted-foreground/60 py-0.5">{field.placeholder || formT("field.chooseOptions", locale)}</span>}
+              }) : <span className="text-[12px] py-0.5" style={{ color: "var(--form-muted-text, #6B7280)", opacity: 0.6 }}>{field.placeholder || formT("field.chooseOptions", locale)}</span>}
             </div>
             <div className="flex flex-wrap gap-1.5">
               {(field.options || []).map((opt, i) => {
                 const isSelected = selected.includes(opt.value);
                 return (
-                  <label key={i} className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[12px] font-medium cursor-pointer transition-colors ${isSelected ? "border-primary bg-primary-soft text-primary" : "border-border bg-white hover:bg-muted"}`} style={isSelected ? undefined : { color: "var(--form-text, #171717)" }}>
+                  <label key={i} className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[12px] font-medium cursor-pointer transition-colors ${isSelected ? "" : "hover:opacity-80"}`} style={isSelected ? { border: "1px solid var(--form-accent, #7957FF)", backgroundColor: "color-mix(in srgb, var(--form-accent, #7957FF) 12%, transparent)", color: "var(--form-accent, #7957FF)" } : { border: "1px solid var(--form-input-border, #E5E7EB)", backgroundColor: "var(--form-input-bg, #ffffff)", color: "var(--form-text, #171717)" }}>
                     <input type="checkbox" checked={isSelected} onChange={() => { if (isSelected) { onChange(selected.filter((s) => s !== opt.value)); } else { onChange([...selected, opt.value]); } }} className="sr-only" />
                     {opt.label || opt.value}
                   </label>
                 );
               })}
             </div>
-            {field.maxSelections && <p className="text-[11px] text-muted-foreground">{formT("field.maxSelections", locale, { count: field.maxSelections })}</p>}
+            {field.maxSelections && <p className="text-[11px]" style={{ color: "var(--form-muted-text, #6B7280)" }}>{formT("field.maxSelections", locale, { count: field.maxSelections })}</p>}
           </div>
         );
       }
@@ -249,8 +249,8 @@ export default function FieldRenderer({ field, value, onChange, error, locale = 
         return (
           <div className="space-y-1.5" role="radiogroup" aria-labelledby={labelId}>
             {(field.options || []).map((opt, i) => (
-              <label key={i} className="flex items-center gap-2.5 rounded-md border border-border bg-white px-3 py-2 text-[13px] cursor-pointer hover:bg-muted/50 transition-colors has-[:checked]:border-primary/30 has-[:checked]:bg-primary/5" style={{ color: "var(--form-text, #171717)" }}>
-                <input type="radio" name={fieldId} value={opt.value} checked={value === opt.value} onChange={(e) => onChange(e.target.value)} required={field.required} className="h-3.5 w-3.5 border-border text-primary focus:ring-primary/30" />
+              <label key={i} className="flex items-center gap-2.5 rounded-md px-3 py-2 text-[13px] cursor-pointer transition-colors hover:opacity-80" style={{ border: "1px solid var(--form-input-border, #E5E7EB)", backgroundColor: "var(--form-input-bg, #ffffff)", color: "var(--form-text, #171717)" }}>
+                <input type="radio" name={fieldId} value={opt.value} checked={value === opt.value} onChange={(e) => onChange(e.target.value)} required={field.required} className="h-3.5 w-3.5" style={{ accentColor: "var(--form-accent, #7957FF)" }} />
                 <span>{opt.label || opt.value}</span>
               </label>
             ))}
@@ -258,9 +258,9 @@ export default function FieldRenderer({ field, value, onChange, error, locale = 
         );
       case "checkbox":
         return (
-          <label className="flex items-start gap-2.5 rounded-md border border-border bg-white px-3 py-2.5 text-[13px] cursor-pointer hover:bg-muted/50 transition-colors has-[:checked]:border-primary/30 has-[:checked]:bg-primary/5" style={{ color: "var(--form-text, #171717)" }}>
-            <input id={fieldId} type="checkbox" checked={Boolean(value)} onChange={(e) => onChange(e.target.checked)} className="h-3.5 w-3.5 mt-0.5 rounded border-border text-primary focus:ring-primary/30" aria-describedby={describedBy} />
-            <span style={{ opacity: 0.7 }}>{field.placeholder || field.label}</span>
+          <label className="flex items-start gap-2.5 rounded-md px-3 py-2.5 text-[13px] cursor-pointer transition-colors hover:opacity-80" style={{ border: "1px solid var(--form-input-border, #E5E7EB)", backgroundColor: "var(--form-input-bg, #ffffff)", color: "var(--form-text, #171717)" }}>
+            <input id={fieldId} type="checkbox" checked={Boolean(value)} onChange={(e) => onChange(e.target.checked)} className="h-3.5 w-3.5 mt-0.5 rounded" style={{ accentColor: "var(--form-accent, #7957FF)" }} aria-describedby={describedBy} />
+            <span style={{ color: "var(--form-muted-text, #6B7280)" }}>{field.placeholder || field.label}</span>
           </label>
         );
       case "date":
@@ -307,17 +307,17 @@ export default function FieldRenderer({ field, value, onChange, error, locale = 
     <div className="space-y-1">
       {field.type !== "checkbox" && (
         <label htmlFor={fieldId} id={labelId} className="block text-[13px] font-medium" style={{ color: "var(--form-text, #171717)" }}>
-          {field.label}{field.required && <span className="text-destructive ml-0.5" aria-hidden="true">*</span>}
+          {field.label}{field.required && <span className="ml-0.5" style={{ color: "var(--form-accent, #dc2626)" }} aria-hidden="true">*</span>}
         </label>
       )}
       {field.type === "checkbox" && field.label && (
         <span id={labelId} className="block text-[13px] font-medium" style={{ color: "var(--form-text, #171717)" }}>
-          {field.label}{field.required && <span className="text-destructive ml-0.5" aria-hidden="true">*</span>}
+          {field.label}{field.required && <span className="ml-0.5" style={{ color: "var(--form-accent, #dc2626)" }} aria-hidden="true">*</span>}
         </span>
       )}
-      {field.description && <p id={descId} className="text-[12px]" style={{ color: "var(--form-text, #171717)", opacity: 0.6 }}>{field.description}</p>}
+      {field.description && <p id={descId} className="text-[12px]" style={{ color: "var(--form-muted-text, #6B7280)" }}>{field.description}</p>}
       {renderField()}
-      {error && <p id={errorId} className="text-[12px] text-destructive" role="alert">{error}</p>}
+      {error && <p id={errorId} className="text-[12px]" style={{ color: "var(--form-accent, #dc2626)" }} role="alert">{error}</p>}
     </div>
   );
 }

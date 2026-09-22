@@ -27,6 +27,15 @@ export default function Navbar() {
       .catch(() => setLoading(false));
   }, []);
 
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handleEscape = (e) => {
+      if (e.key === "Escape") setMenuOpen(false);
+    };
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
+  }, [menuOpen]);
+
   const handleLogout = async () => {
     try {
       await fetch("/api/auth/logout", { method: "POST" });

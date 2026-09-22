@@ -1,5 +1,3 @@
-"use client";
-
 import FormRenderer from "@/components/form-renderer/FormRenderer";
 
 export default function PublicFormClient({ form, submissionCount = 0 }) {

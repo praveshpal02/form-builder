@@ -198,7 +198,10 @@ export default function HeroSection() {
     const el = heroRef.current;
     if (!el) return;
     el.addEventListener("mousemove", handleMouseMove, { passive: true });
-    return () => el.removeEventListener("mousemove", handleMouseMove);
+    return () => {
+      el.removeEventListener("mousemove", handleMouseMove);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
   }, [handleMouseMove]);
 
   const showCursorEffect = !reducedMotion && !isMobile;
@@ -330,7 +333,7 @@ export default function HeroSection() {
             </svg>
 
             {/* Floating analytics cards — subtly revealed */}
-            <div className="absolute top-[18%] right-[12%] rounded-xl border border-primary-border/40 bg-white/90 backdrop-blur-sm px-4 py-3 shadow-lg shadow-primary/[0.06]">
+            <div className="absolute top-[18%] right-[22%] rounded-xl border border-primary-border/40 bg-white/90 backdrop-blur-sm px-4 py-3 shadow-lg shadow-primary/[0.06]">
               <div className="text-[10px] font-medium text-muted-foreground">Total Responses</div>
               <div className="text-[22px] font-bold text-foreground mt-0.5">1,247</div>
               <div className="text-[10px] text-emerald-600 font-medium mt-0.5">↑ 12.3%</div>

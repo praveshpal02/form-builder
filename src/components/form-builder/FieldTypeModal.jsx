@@ -83,13 +83,16 @@ export default function FieldTypeModal({ isOpen, onClose, onSelectType }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/40 backdrop-blur-sm">
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="field-type-modal-title"
         className="relative w-full max-w-md max-h-[80vh] bg-white rounded-lg border border-border shadow-xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-4 border-b border-border">
           <div className="flex items-center justify-between mb-3">
             <div>
-              <h2 className="text-[15px] font-semibold text-foreground">Add Field</h2>
+              <h2 id="field-type-modal-title" className="text-[15px] font-semibold text-foreground">Add Field</h2>
               <p className="text-[12px] text-muted-foreground mt-0.5">Select a field type to add</p>
             </div>
             <button type="button" onClick={onClose} aria-label="Close"

@@ -115,6 +115,7 @@ export const Icons = {
   minimize: "Minimize",
   maximize: "Maximize2",
   copyCheck: "Check",
+  palette: "Palette",
 };
 
 export default Icon;

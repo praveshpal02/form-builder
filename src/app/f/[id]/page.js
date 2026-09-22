@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation";
+import { cache } from "react";
 import PublicFormClient from "@/components/PublicFormClient";
 
-async function getFormById(id) {
+const getFormById = cache(async (id) => {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
     const res = await fetch(`${baseUrl}/api/forms/${id}`, {
@@ -18,7 +19,7 @@ async function getFormById(id) {
     console.error("Error fetching form:", error);
     return null;
   }
-}
+});
 
 export default async function PublicFormPage({ params }) {
   const { id } = await params;

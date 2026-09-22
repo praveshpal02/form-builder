@@ -486,8 +486,8 @@ export default function FieldCard({
                         </div>
                       ))
                     ) : (
-                      <div className="p-2.5 text-center border border-dashed border-border rounded-md text-[12px] text-muted-foreground bg-background">
-                        No options yet. Click &quot;+ Add Option&quot; above.
+                      <div className="p-2.5 text-center border border-dashed border-destructive/40 text-destructive rounded-md text-[12px] bg-background">
+                        Add at least one option.
                       </div>
                     )}
                   </div>

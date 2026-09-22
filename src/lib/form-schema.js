@@ -118,13 +118,23 @@ export function createField(type, overrides = {}) {
 
   const typeDefaults = FIELD_DEFAULTS[type] || {};
 
-  return {
+  const field = {
     ...base,
     ...typeDefaults,
     ...overrides,
     id: overrides.id || base.id,
     type,
   };
+
+  // Tally-style UX: option-based fields always get at least one default option
+  if (["select", "multiselect", "radio"].includes(type)) {
+    const options = Array.isArray(field.options) ? field.options : [];
+    if (options.length === 0) {
+      field.options = [createOption("option_1", "Option 1")];
+    }
+  }
+
+  return field;
 }
 
 export const FORM_THEME_FONTS = [
@@ -138,8 +148,12 @@ export const FORM_THEME_FONTS = [
 
 export const DEFAULT_FORM_THEME = {
   font: "Inter",
-  background: "#FFFFFF",
+  pageBackground: "#F8F8FC",
+  cardBackground: "#FFFFFF",
   text: "#171717",
+  mutedText: "#6B7280",
+  inputBackground: "#FFFFFF",
+  inputBorder: "#E5E7EB",
   buttonBackground: "#7957FF",
   buttonText: "#FFFFFF",
   accent: "#7957FF",
@@ -227,14 +241,16 @@ export function validateFormSchema(schema) {
     }
 
     if (
-      (field.type === "select" ||
-        field.type === "radio" ||
-        field.type === "multiselect") &&
-      field.options
+      field.type === "select" ||
+      field.type === "radio" ||
+      field.type === "multiselect"
     ) {
       if (!Array.isArray(field.options)) {
         errors.push(`${prefix}: Options must be an array`);
       } else {
+        if (field.options.length === 0) {
+          errors.push(`${prefix}: Add at least one option.`);
+        }
         for (let j = 0; j < field.options.length; j++) {
           const opt = field.options[j];
           if (!opt.value && opt.value !== "") {

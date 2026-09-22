@@ -1,1 +1,0 @@
-{"title":"Test Form Updated","description":"Updated Description","schema":{"version":1,"settings":{},"fields":[{"id":"field_1","type":"text","label":"Name","description":"","placeholder":"Enter name","required":true,"defaultValue":"","minLength":null,"maxLength":null}]},"status":"published"}

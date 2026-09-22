@@ -21,7 +21,7 @@ export const Toggle = forwardRef(
     return (
       <label
         htmlFor={toggleId}
-        className={`inline-flex items-center cursor-pointer ${disabled ? "opacity-50 cursor-not-allowed" : ""} ${className}`}
+        className={`toggle inline-flex items-center cursor-pointer ${disabled ? "opacity-50 cursor-not-allowed" : ""} ${className}`}
         {...props}
       >
         <input
@@ -41,16 +41,5 @@ export const Toggle = forwardRef(
 );
 
 Toggle.displayName = "Toggle";
-
-export const ToggleSwitch = ({ checked, onChange, disabled = false, id, "aria-label": ariaLabel, ...props }) => (
-  <Toggle
-    checked={checked}
-    onChange={onChange}
-    disabled={disabled}
-    id={id}
-    aria-label={ariaLabel}
-    {...props}
-  />
-);
 
 export default Toggle;

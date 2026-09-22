@@ -363,6 +363,21 @@ textarea:-webkit-autofill:focus {
   background-color: var(--destructive-hover);
 }
 
+.btn-outline-destructive {
+  background-color: transparent;
+  color: var(--destructive);
+  border: 1px solid var(--destructive-border);
+}
+
+.btn-outline-destructive:hover:not(:disabled) {
+  background-color: var(--destructive-soft);
+  border-color: var(--destructive);
+}
+
+.btn-outline-destructive:active:not(:disabled) {
+  background-color: var(--destructive-soft);
+}
+
 .btn-ghost {
   background-color: transparent;
   color: var(--muted-foreground);

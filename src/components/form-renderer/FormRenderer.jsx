@@ -137,17 +137,17 @@ export default function FormRenderer({ schema, formId, submissionCount = 0, prev
   if (submitted) {
     return (
       <FormThemeProvider theme={theme}>
-        <div className="flex min-h-[calc(100vh-56px)] items-center justify-center bg-muted/30 px-4 py-10">
+        <div className="flex min-h-[calc(100vh-56px)] items-center justify-center px-4 py-10" style={{ backgroundColor: "var(--form-page-bg)" }}>
           <div className="w-full max-w-lg">
-            <div className="rounded-lg border border-border bg-white p-8 shadow-sm text-center">
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-success-bg mx-auto mb-4">
-                <Icon name="checkCircle" size="lg" className="text-success" aria-hidden="true" />
+            <div className="rounded-lg p-8 shadow-sm text-center" style={{ backgroundColor: "var(--form-card-bg)", color: "var(--form-text)", border: "1px solid var(--form-input-border)" }}>
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full mx-auto mb-4" style={{ backgroundColor: "color-mix(in srgb, #16a34a 10%, transparent)" }}>
+                <Icon name="checkCircle" size="lg" style={{ color: "#16a34a" }} aria-hidden="true" />
               </div>
-              <h2 className="text-lg font-semibold text-foreground mb-1.5">{settings.successMessage || formT("form.success", locale)}</h2>
-              <p className="text-[13px] text-muted-foreground">{formT("form.recorded", locale)}</p>
+              <h2 className="text-lg font-semibold mb-1.5">{settings.successMessage || formT("form.success", locale)}</h2>
+              <p className="text-[13px]" style={{ color: "var(--form-muted-text)" }}>{formT("form.recorded", locale)}</p>
               {preview && (
                 <button type="button" onClick={() => { setSubmitted(false); setValues(initialValues); setErrors({}); if (onPreviewReset) onPreviewReset(); }}
-                  className="mt-4 inline-flex items-center gap-1.5 rounded-md border border-border bg-white px-4 py-2 text-[13px] font-medium text-foreground hover:bg-muted transition-colors">
+                  className="mt-4 inline-flex items-center gap-1.5 rounded-md px-4 py-2 text-[13px] font-medium transition-colors" style={{ border: "1px solid var(--form-input-border)", color: "var(--form-text)" }}>
                   <Icon name="rotateCcw" size="sm" strokeWidth={2} aria-hidden="true" />
                   Submit another response
                 </button>
@@ -162,14 +162,14 @@ export default function FormRenderer({ schema, formId, submissionCount = 0, prev
   if (formClosed.closed) {
     return (
       <FormThemeProvider theme={theme}>
-        <div className="flex min-h-[calc(100vh-56px)] items-center justify-center bg-muted/30 px-4 py-10">
+        <div className="flex min-h-[calc(100vh-56px)] items-center justify-center px-4 py-10" style={{ backgroundColor: "var(--form-page-bg)" }}>
           <div className="w-full max-w-lg">
-            <div className="rounded-lg border border-border bg-white p-8 shadow-sm text-center">
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-warning-bg mx-auto mb-4">
-                <Icon name="alertTriangle" size="lg" className="text-warning" aria-hidden="true" />
+            <div className="rounded-lg p-8 shadow-sm text-center" style={{ backgroundColor: "var(--form-card-bg)", color: "var(--form-text)", border: "1px solid var(--form-input-border)" }}>
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full mx-auto mb-4" style={{ backgroundColor: "color-mix(in srgb, #f59e0b 10%, transparent)" }}>
+                <Icon name="alertTriangle" size="lg" style={{ color: "#f59e0b" }} aria-hidden="true" />
               </div>
-              <h2 className="text-lg font-semibold text-foreground mb-1.5">{formT("form.closedTitle", locale)}</h2>
-              <p className="text-[13px] text-muted-foreground">{formClosed.message}</p>
+              <h2 className="text-lg font-semibold mb-1.5">{formT("form.closedTitle", locale)}</h2>
+              <p className="text-[13px]" style={{ color: "var(--form-muted-text)" }}>{formClosed.message}</p>
             </div>
           </div>
         </div>
@@ -179,33 +179,33 @@ export default function FormRenderer({ schema, formId, submissionCount = 0, prev
 
   return (
     <FormThemeProvider theme={theme}>
-      <div className="flex min-h-[calc(100vh-56px)] items-start justify-center bg-muted/30 px-4 py-10">
-        <div className="w-full max-w-lg rounded-lg border border-border shadow-sm overflow-hidden" style={{ backgroundColor: "var(--form-bg)", color: "var(--form-text)" }}>
+      <div className="flex min-h-[calc(100vh-56px)] items-start justify-center px-4 py-10" style={{ backgroundColor: "var(--form-page-bg)" }}>
+        <div className="w-full max-w-lg rounded-lg shadow-sm overflow-hidden" style={{ backgroundColor: "var(--form-card-bg)", color: "var(--form-text)", border: "1px solid var(--form-input-border)" }}>
           {schema.banner && (
             <img src={schema.banner} alt="Form banner" className="w-full h-40 sm:h-52 object-cover" loading="lazy" />
           )}
           <div className="p-6 sm:p-8">
             <div className="mb-5">
-              <h1 className="text-xl font-semibold tracking-tight" style={{ color: "var(--form-text)" }}>{schema.title || formT("form.untitledForm", locale)}</h1>
-              {schema.description && <p className="mt-1 text-[13px]" style={{ color: "var(--form-text)", opacity: 0.7 }}>{schema.description}</p>}
+              <h1 className="text-xl font-semibold tracking-tight">{schema.title || formT("form.untitledForm", locale)}</h1>
+              {schema.description && <p className="mt-1 text-[13px]" style={{ color: "var(--form-muted-text)" }}>{schema.description}</p>}
             </div>
 
             {settings.showProgressBar && displayFields.length > 0 && (
               <div className="mb-5" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100} aria-label="Form completion progress">
-                <div className="flex items-center justify-between text-[11px] mb-1" style={{ color: "var(--form-text)", opacity: 0.6 }}>
+                <div className="flex items-center justify-between text-[11px] mb-1" style={{ color: "var(--form-muted-text)" }}>
                   <span>Progress</span><span>{progress}%</span>
                 </div>
-                <div className="h-1 rounded-full overflow-hidden" style={{ backgroundColor: "color-mix(in srgb, var(--form-text) 10%, transparent)" }}>
+                <div className="h-1 rounded-full overflow-hidden" style={{ backgroundColor: "color-mix(in srgb, var(--form-text) 8%, transparent)" }}>
                   <div className="h-full rounded-full transition-all duration-300" style={{ width: `${progress}%`, backgroundColor: "var(--form-accent)" }} />
                 </div>
               </div>
             )}
 
             {displayFields.length === 0 ? (
-              <div className="py-10 text-center" style={{ color: "var(--form-text)", opacity: 0.5 }}><p className="text-[13px]">{formT("form.noFields", locale)}</p></div>
+              <div className="py-10 text-center" style={{ color: "var(--form-muted-text)" }}><p className="text-[13px]">{formT("form.noFields", locale)}</p></div>
             ) : (
               <form onSubmit={handleSubmit} noValidate lang={locale} className="space-y-5">
-                {submitError && <div className="rounded-md border px-3 py-2.5 text-[13px]" style={{ borderColor: "color-mix(in srgb, #dc2626 30%, transparent)", backgroundColor: "color-mix(in srgb, #dc2626 5%, transparent)", color: "#dc2626" }} role="alert">{submitError}</div>}
+                {submitError && <div className="rounded-md px-3 py-2.5 text-[13px]" style={{ border: "1px solid color-mix(in srgb, var(--form-accent) 30%, transparent)", backgroundColor: "color-mix(in srgb, var(--form-accent) 5%, transparent)", color: "var(--form-accent)" }} role="alert">{submitError}</div>}
                 {displayFields.map((field) => (
                   <FieldRenderer key={field.id} field={field} value={values[field.id]} onChange={(v) => handleChange(field.id, v)} error={errors[field.id]} locale={locale} formId={formId} disabled={submitting} />
                 ))}

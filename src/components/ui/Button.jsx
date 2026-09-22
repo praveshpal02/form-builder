@@ -9,6 +9,7 @@ const variantStyles = {
   destructive: "btn btn-destructive",
   ghost: "btn btn-ghost",
   outline: "btn btn-secondary",
+  outlineDestructive: "btn btn-outline-destructive",
 };
 
 const sizeStyles = {
@@ -66,11 +67,5 @@ export const Button = forwardRef(
 );
 
 Button.displayName = "Button";
-
-export const ButtonGroup = ({ children, className = "", ...props }) => (
-  <div className={`inline-flex items-center gap-1 ${className}`} {...props}>
-    {children}
-  </div>
-);
 
 export default Button;

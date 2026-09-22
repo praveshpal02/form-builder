@@ -1,5 +1,3 @@
-"use client";
-
 import FormBuilder from "./FormBuilder";
 
 export default function EditFormClient({
