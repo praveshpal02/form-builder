@@ -329,6 +329,10 @@ export default function FormBuilder({
     }
   };
 
+  const handleUpdateBanner = (imageUrl) => {
+    setFormSchema((prev) => ({ ...prev, banner: imageUrl || null }));
+  };
+
   const handleUpdateSettings = (key, value) => {
     setFormSchema((prev) => ({
       ...prev,
@@ -442,6 +446,7 @@ export default function FormBuilder({
         <FormCanvas
           title={formSchema.title}
           description={formSchema.description}
+          banner={formSchema.banner}
           fields={formSchema.fields}
           settings={formSchema.settings}
           selectedFieldId={selectedFieldId}
@@ -451,6 +456,7 @@ export default function FormBuilder({
           onDuplicateField={handleDuplicateField}
           onMoveField={handleMoveField}
           onUpdateMeta={handleUpdateMeta}
+          onUpdateBanner={handleUpdateBanner}
           onOpenFieldPicker={handleOpenFieldPicker}
           showSubmitButton={false}
         />
@@ -458,6 +464,7 @@ export default function FormBuilder({
         <FormPreview
           title={formSchema.title}
           description={formSchema.description}
+          banner={formSchema.banner}
           fields={formSchema.fields}
           settings={formSchema.settings}
         />

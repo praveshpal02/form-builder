@@ -31,7 +31,7 @@ function isAcceptFile(file, accept) {
   });
 }
 
-function FileFieldInput({ field, value, onChange, locale, formId, disabled }) {
+export function FileFieldInput({ field, value, onChange, locale, formId, disabled }) {
   const inputRef = useRef(null);
   const [dragActive, setDragActive] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -178,23 +178,33 @@ export default function FieldRenderer({ field, value, onChange, error, locale = 
   const descId = `${fieldId}-desc`;
   const describedBy = [field.description ? descId : null, error ? errorId : null].filter(Boolean).join(" ") || undefined;
 
-  const baseInputClasses = "w-full rounded-md border bg-white px-3 py-2 text-[13px] text-foreground focus:outline-none focus:ring-1 focus:ring-primary/30 transition-colors";
-  const inputClasses = error ? `${baseInputClasses} border-destructive focus:border-destructive` : `${baseInputClasses} border-border focus:border-primary/40`;
+  const baseInputClasses = "w-full rounded-md border bg-white px-3 py-2 text-[13px] focus:outline-none focus:ring-1 transition-colors";
+  const inputClasses = error
+    ? `${baseInputClasses} border-destructive focus:border-destructive`
+    : `${baseInputClasses} border-border focus:border-primary/40`;
+
+  const themeInputStyle = {
+    backgroundColor: "var(--form-bg, #ffffff)",
+    color: "var(--form-text, #171717)",
+    borderColor: error ? undefined : undefined,
+  };
+
+  const themeFocusRing = { "--tw-ring-color": "color-mix(in srgb, var(--form-accent, #7957FF) 30%, transparent)" };
 
   function renderField() {
     switch (field.type) {
       case "text":
-        return <input id={fieldId} type="text" value={value ?? ""} onChange={(e) => onChange(e.target.value)} placeholder={field.placeholder || ""} required={field.required} minLength={field.minLength ?? undefined} maxLength={field.maxLength ?? undefined} className={inputClasses} aria-describedby={describedBy} aria-invalid={!!error} />;
+        return <input id={fieldId} type="text" value={value ?? ""} onChange={(e) => onChange(e.target.value)} placeholder={field.placeholder || ""} required={field.required} minLength={field.minLength ?? undefined} maxLength={field.maxLength ?? undefined} className={inputClasses} style={{ ...themeInputStyle, ...themeFocusRing }} aria-describedby={describedBy} aria-invalid={!!error} />;
       case "email":
-        return <input id={fieldId} type="email" value={value ?? ""} onChange={(e) => onChange(e.target.value)} placeholder={field.placeholder || "name@example.com"} required={field.required} className={inputClasses} aria-describedby={describedBy} aria-invalid={!!error} />;
+        return <input id={fieldId} type="email" value={value ?? ""} onChange={(e) => onChange(e.target.value)} placeholder={field.placeholder || "name@example.com"} required={field.required} className={inputClasses} style={{ ...themeInputStyle, ...themeFocusRing }} aria-describedby={describedBy} aria-invalid={!!error} />;
       case "number":
-        return <input id={fieldId} type="number" value={value ?? ""} onChange={(e) => onChange(e.target.value)} placeholder={field.placeholder || "0"} required={field.required} min={field.min ?? undefined} max={field.max ?? undefined} step={field.step ?? undefined} className={inputClasses} aria-describedby={describedBy} aria-invalid={!!error} />;
+        return <input id={fieldId} type="number" value={value ?? ""} onChange={(e) => onChange(e.target.value)} placeholder={field.placeholder || "0"} required={field.required} min={field.min ?? undefined} max={field.max ?? undefined} step={field.step ?? undefined} className={inputClasses} style={{ ...themeInputStyle, ...themeFocusRing }} aria-describedby={describedBy} aria-invalid={!!error} />;
       case "textarea":
-        return <textarea id={fieldId} value={value ?? ""} onChange={(e) => onChange(e.target.value)} placeholder={field.placeholder || ""} required={field.required} rows={field.rows || 4} minLength={field.minLength ?? undefined} maxLength={field.maxLength ?? undefined} className={`${inputClasses} resize-none`} aria-describedby={describedBy} aria-invalid={!!error} />;
+        return <textarea id={fieldId} value={value ?? ""} onChange={(e) => onChange(e.target.value)} placeholder={field.placeholder || ""} required={field.required} rows={field.rows || 4} minLength={field.minLength ?? undefined} maxLength={field.maxLength ?? undefined} className={`${inputClasses} resize-none`} style={{ ...themeInputStyle, ...themeFocusRing }} aria-describedby={describedBy} aria-invalid={!!error} />;
       case "select":
         return (
           <div className="relative">
-            <select id={fieldId} value={value ?? ""} onChange={(e) => onChange(e.target.value)} required={field.required} className={`${inputClasses} appearance-none pr-10`} aria-describedby={describedBy} aria-invalid={!!error}>
+            <select id={fieldId} value={value ?? ""} onChange={(e) => onChange(e.target.value)} required={field.required} className={`${inputClasses} appearance-none pr-10`} style={{ ...themeInputStyle, ...themeFocusRing }} aria-describedby={describedBy} aria-invalid={!!error}>
               <option value="">{field.placeholder || formT("field.selectOption", locale)}</option>
               {(field.options || []).map((opt, i) => (<option key={i} value={opt.value}>{opt.label || opt.value}</option>))}
             </select>
@@ -224,7 +234,7 @@ export default function FieldRenderer({ field, value, onChange, error, locale = 
               {(field.options || []).map((opt, i) => {
                 const isSelected = selected.includes(opt.value);
                 return (
-                  <label key={i} className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[12px] font-medium cursor-pointer transition-colors ${isSelected ? "border-primary bg-primary-soft text-primary" : "border-border bg-white text-foreground hover:bg-muted"}`}>
+                  <label key={i} className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[12px] font-medium cursor-pointer transition-colors ${isSelected ? "border-primary bg-primary-soft text-primary" : "border-border bg-white hover:bg-muted"}`} style={isSelected ? undefined : { color: "var(--form-text, #171717)" }}>
                     <input type="checkbox" checked={isSelected} onChange={() => { if (isSelected) { onChange(selected.filter((s) => s !== opt.value)); } else { onChange([...selected, opt.value]); } }} className="sr-only" />
                     {opt.label || opt.value}
                   </label>
@@ -239,7 +249,7 @@ export default function FieldRenderer({ field, value, onChange, error, locale = 
         return (
           <div className="space-y-1.5" role="radiogroup" aria-labelledby={labelId}>
             {(field.options || []).map((opt, i) => (
-              <label key={i} className="flex items-center gap-2.5 rounded-md border border-border bg-white px-3 py-2 text-[13px] text-foreground cursor-pointer hover:bg-muted/50 transition-colors has-[:checked]:border-primary/30 has-[:checked]:bg-primary/5">
+              <label key={i} className="flex items-center gap-2.5 rounded-md border border-border bg-white px-3 py-2 text-[13px] cursor-pointer hover:bg-muted/50 transition-colors has-[:checked]:border-primary/30 has-[:checked]:bg-primary/5" style={{ color: "var(--form-text, #171717)" }}>
                 <input type="radio" name={fieldId} value={opt.value} checked={value === opt.value} onChange={(e) => onChange(e.target.value)} required={field.required} className="h-3.5 w-3.5 border-border text-primary focus:ring-primary/30" />
                 <span>{opt.label || opt.value}</span>
               </label>
@@ -248,21 +258,21 @@ export default function FieldRenderer({ field, value, onChange, error, locale = 
         );
       case "checkbox":
         return (
-          <label className="flex items-start gap-2.5 rounded-md border border-border bg-white px-3 py-2.5 text-[13px] text-foreground cursor-pointer hover:bg-muted/50 transition-colors has-[:checked]:border-primary/30 has-[:checked]:bg-primary/5">
+          <label className="flex items-start gap-2.5 rounded-md border border-border bg-white px-3 py-2.5 text-[13px] cursor-pointer hover:bg-muted/50 transition-colors has-[:checked]:border-primary/30 has-[:checked]:bg-primary/5" style={{ color: "var(--form-text, #171717)" }}>
             <input id={fieldId} type="checkbox" checked={Boolean(value)} onChange={(e) => onChange(e.target.checked)} className="h-3.5 w-3.5 mt-0.5 rounded border-border text-primary focus:ring-primary/30" aria-describedby={describedBy} />
-            <span className="text-muted-foreground">{field.placeholder || field.label}</span>
+            <span style={{ opacity: 0.7 }}>{field.placeholder || field.label}</span>
           </label>
         );
       case "date":
-        return <input id={fieldId} type="date" value={value ?? ""} onChange={(e) => onChange(e.target.value)} required={field.required} min={field.minDate || undefined} max={field.maxDate || undefined} className={inputClasses} aria-describedby={describedBy} aria-invalid={!!error} />;
+        return <input id={fieldId} type="date" value={value ?? ""} onChange={(e) => onChange(e.target.value)} required={field.required} min={field.minDate || undefined} max={field.maxDate || undefined} className={inputClasses} style={{ ...themeInputStyle, ...themeFocusRing }} aria-describedby={describedBy} aria-invalid={!!error} />;
       case "time":
-        return <input id={fieldId} type="time" value={value ?? ""} onChange={(e) => onChange(e.target.value)} required={field.required} className={inputClasses} aria-describedby={describedBy} aria-invalid={!!error} />;
+        return <input id={fieldId} type="time" value={value ?? ""} onChange={(e) => onChange(e.target.value)} required={field.required} className={inputClasses} style={{ ...themeInputStyle, ...themeFocusRing }} aria-describedby={describedBy} aria-invalid={!!error} />;
       case "datetime":
-        return <input id={fieldId} type="datetime-local" value={value ?? ""} onChange={(e) => onChange(e.target.value)} required={field.required} min={field.minDateTime || undefined} max={field.maxDateTime || undefined} className={inputClasses} aria-describedby={describedBy} aria-invalid={!!error} />;
+        return <input id={fieldId} type="datetime-local" value={value ?? ""} onChange={(e) => onChange(e.target.value)} required={field.required} min={field.minDateTime || undefined} max={field.maxDateTime || undefined} className={inputClasses} style={{ ...themeInputStyle, ...themeFocusRing }} aria-describedby={describedBy} aria-invalid={!!error} />;
       case "phone":
-        return <input id={fieldId} type="tel" value={value ?? ""} onChange={(e) => onChange(e.target.value)} placeholder={field.placeholder || "+1 (555) 000-0000"} required={field.required} className={inputClasses} aria-describedby={describedBy} aria-invalid={!!error} />;
+        return <input id={fieldId} type="tel" value={value ?? ""} onChange={(e) => onChange(e.target.value)} placeholder={field.placeholder || "+1 (555) 000-0000"} required={field.required} className={inputClasses} style={{ ...themeInputStyle, ...themeFocusRing }} aria-describedby={describedBy} aria-invalid={!!error} />;
       case "url":
-        return <input id={fieldId} type="url" value={value ?? ""} onChange={(e) => onChange(e.target.value)} placeholder={field.placeholder || "https://"} required={field.required} className={inputClasses} aria-describedby={describedBy} aria-invalid={!!error} />;
+        return <input id={fieldId} type="url" value={value ?? ""} onChange={(e) => onChange(e.target.value)} placeholder={field.placeholder || "https://"} required={field.required} className={inputClasses} style={{ ...themeInputStyle, ...themeFocusRing }} aria-describedby={describedBy} aria-invalid={!!error} />;
       case "rating": {
         const maxStars = field.maxRating || 5;
         const numericValue = typeof value === "number" ? value : 0;
@@ -288,13 +298,6 @@ export default function FieldRenderer({ field, value, onChange, error, locale = 
             disabled={disabled}
           />
         );
-      case "banner":
-        if (!field.imageUrl) return null;
-        return (
-          <div className="rounded-md overflow-hidden border border-border/50 -mt-1">
-            <img src={field.imageUrl} alt={field.label || "Banner"} className="w-full h-auto object-cover" loading="lazy" />
-          </div>
-        );
       default:
         return <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2.5 text-[13px] text-amber-700">{formT("field.unsupported", locale, { type: field.type })}</div>;
     }
@@ -302,17 +305,17 @@ export default function FieldRenderer({ field, value, onChange, error, locale = 
 
   return (
     <div className="space-y-1">
-      {field.type !== "checkbox" && field.type !== "banner" && (
-        <label htmlFor={fieldId} id={labelId} className="block text-[13px] font-medium text-foreground">
+      {field.type !== "checkbox" && (
+        <label htmlFor={fieldId} id={labelId} className="block text-[13px] font-medium" style={{ color: "var(--form-text, #171717)" }}>
           {field.label}{field.required && <span className="text-destructive ml-0.5" aria-hidden="true">*</span>}
         </label>
       )}
       {field.type === "checkbox" && field.label && (
-        <span id={labelId} className="block text-[13px] font-medium text-foreground">
+        <span id={labelId} className="block text-[13px] font-medium" style={{ color: "var(--form-text, #171717)" }}>
           {field.label}{field.required && <span className="text-destructive ml-0.5" aria-hidden="true">*</span>}
         </span>
       )}
-      {field.description && field.type !== "banner" && <p id={descId} className="text-[12px] text-muted-foreground">{field.description}</p>}
+      {field.description && <p id={descId} className="text-[12px]" style={{ color: "var(--form-text, #171717)", opacity: 0.6 }}>{field.description}</p>}
       {renderField()}
       {error && <p id={errorId} className="text-[12px] text-destructive" role="alert">{error}</p>}
     </div>

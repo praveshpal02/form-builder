@@ -14,7 +14,6 @@ export const SUPPORTED_FIELD_TYPES = [
   "phone",
   "url",
   "rating",
-  "banner",
 ];
 
 let fieldCounter = 0;
@@ -82,9 +81,6 @@ const FIELD_DEFAULTS = {
   rating: {
     maxRating: 5,
   },
-  banner: {
-    imageUrl: "",
-  },
 };
 
 const FIELD_LABELS = {
@@ -103,21 +99,11 @@ const FIELD_LABELS = {
   phone: "Phone Number",
   url: "Website / URL",
   rating: "Rating",
-  banner: "Banner",
 };
 
 export function createField(type, overrides = {}) {
   if (!SUPPORTED_FIELD_TYPES.includes(type)) {
     throw new Error(`Unsupported field type: ${type}`);
-  }
-
-  if (type === "banner") {
-    const base = {
-      id: generateFieldId(),
-      type: "banner",
-      imageUrl: "",
-    };
-    return { ...base, ...overrides, id: overrides.id || base.id, type: "banner" };
   }
 
   const base = {
@@ -141,12 +127,33 @@ export function createField(type, overrides = {}) {
   };
 }
 
+export const FORM_THEME_FONTS = [
+  { value: "Inter", label: "Inter" },
+  { value: "Arial", label: "Arial" },
+  { value: "Georgia", label: "Georgia" },
+  { value: "Times New Roman", label: "Times New Roman" },
+  { value: "Courier New", label: "Courier New" },
+  { value: "Verdana", label: "Verdana" },
+];
+
+export const DEFAULT_FORM_THEME = {
+  font: "Inter",
+  background: "#FFFFFF",
+  text: "#171717",
+  buttonBackground: "#7957FF",
+  buttonText: "#FFFFFF",
+  accent: "#7957FF",
+};
+
 export function createEmptyFormSchema() {
   return {
     version: 1,
     settings: {
       // Locale
       locale: "en-IN",
+
+      // Theme
+      theme: { ...DEFAULT_FORM_THEME },
 
       // Submission
       submitButtonText: "Submit",
@@ -174,6 +181,7 @@ export function createEmptyFormSchema() {
         message: "Thank you for your submission. We have received your response.",
       },
     },
+    banner: null,
     fields: [],
   };
 }
@@ -210,8 +218,6 @@ export function validateFormSchema(schema) {
 
     if (!field.type) {
       errors.push(`${prefix}: Type is required`);
-    } else if (field.type === "banner") {
-      // Banner is a content block, skip input validation
     } else if (!SUPPORTED_FIELD_TYPES.includes(field.type)) {
       errors.push(`${prefix}: Unsupported type "${field.type}"`);
     }

@@ -26,10 +26,16 @@ export async function POST(request) {
       return NextResponse.json({ success: false, error: "File too large. Maximum 5MB." }, { status: 400 });
     }
 
-    const { env } = getCloudflareContext();
-    const bucket = env.FORM_UPLOADS;
+    let bucket;
+    try {
+      const { env } = getCloudflareContext();
+      bucket = env?.FORM_UPLOADS;
+    } catch {
+      // getCloudflareContext may throw in local dev without wrangler
+    }
+
     if (!bucket) {
-      return NextResponse.json({ success: false, error: "Storage not configured" }, { status: 500 });
+      return NextResponse.json({ success: false, error: "File storage not available in local development. Deploy to Cloudflare to use banner uploads." }, { status: 503 });
     }
 
     const ext = file.name.split(".").pop() || "jpg";

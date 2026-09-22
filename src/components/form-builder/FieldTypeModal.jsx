@@ -44,12 +44,6 @@ const FIELD_CATEGORIES = [
       { type: "rating", label: "Rating", description: "Star rating scale", iconName: "star" },
     ],
   },
-  {
-    category: "Content",
-    items: [
-      { type: "banner", label: "Banner Image", description: "Upload a banner image", iconName: "image" },
-    ],
-  },
 ];
 
 export default function FieldTypeModal({ isOpen, onClose, onSelectType }) {

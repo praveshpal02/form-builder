@@ -2,16 +2,20 @@
 
 import { useState, useMemo } from "react";
 import FormRenderer from "@/components/form-renderer/FormRenderer";
+import FormThemeProvider from "@/components/form-renderer/FormThemeProvider";
 
-export default function FormPreview({ title, description, fields, settings }) {
+export default function FormPreview({ title, description, banner, fields, settings }) {
   const [resetKey, setResetKey] = useState(0);
 
   const schema = useMemo(() => ({
     title: title || "Untitled Form",
     description: description || "",
+    banner: banner || null,
     fields: fields || [],
     settings: settings || {},
-  }), [title, description, fields, settings]);
+  }), [title, description, banner, fields, settings]);
+
+  const theme = settings?.theme;
 
   if ((!fields || fields.length === 0) && (!title || !title.trim())) {
     return (
@@ -27,13 +31,15 @@ export default function FormPreview({ title, description, fields, settings }) {
 
   return (
     <div className="flex-1 overflow-y-auto bg-background">
-      <FormRenderer
-        key={resetKey}
-        schema={schema}
-        formId={null}
-        preview={true}
-        onPreviewReset={() => setResetKey((k) => k + 1)}
-      />
+      <FormThemeProvider theme={theme}>
+        <FormRenderer
+          key={resetKey}
+          schema={schema}
+          formId={null}
+          preview={true}
+          onPreviewReset={() => setResetKey((k) => k + 1)}
+        />
+      </FormThemeProvider>
     </div>
   );
 }

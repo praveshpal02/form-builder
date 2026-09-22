@@ -24,5 +24,5 @@ export default async function PreviewFormPage({ params }) {
 
   const schema = JSON.parse(form.schema);
 
-  return <FormPreview title={schema.title} description={schema.description} fields={schema.fields || []} settings={schema.settings || {}} />;
+  return <FormPreview title={schema.title} description={schema.description} banner={schema.banner} fields={schema.fields || []} settings={schema.settings || {}} />;
 }

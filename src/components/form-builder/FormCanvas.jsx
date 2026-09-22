@@ -8,6 +8,7 @@ import { Icon } from "@/components/ui/Icon";
 export default function FormCanvas({
   title,
   description,
+  banner,
   fields,
   settings,
   selectedFieldId,
@@ -17,13 +18,40 @@ export default function FormCanvas({
   onDuplicateField,
   onMoveField,
   onUpdateMeta,
+  onUpdateBanner,
   onOpenFieldPicker,
   showSubmitButton = true,
+  formId = null,
 }) {
   const [draggedFieldId, setDraggedFieldId] = useState(null);
   const [dragOverIndex, setDragOverIndex] = useState(null);
+  const [bannerUploading, setBannerUploading] = useState(false);
+  const [bannerError, setBannerError] = useState(null);
   const dragOverTimeoutRef = useRef(null);
   const draggedFieldIdRef = useRef(null);
+
+  const handleBannerUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setBannerUploading(true);
+    setBannerError(null);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/upload/banner", { method: "POST", body: formData });
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.error || "Upload failed");
+      onUpdateBanner("/api/files/" + data.key);
+    } catch (err) {
+      setBannerError(err.message || "Upload failed");
+    } finally {
+      setBannerUploading(false);
+    }
+  };
+
+  const handleBannerRemove = () => {
+    onUpdateBanner("");
+  };
 
   const handleDragStart = useCallback((e, fieldId) => {
     draggedFieldIdRef.current = fieldId;
@@ -95,6 +123,39 @@ export default function FormCanvas({
         className="w-full max-w-2xl flex flex-col space-y-6 self-start min-h-[500px] pb-24"
         onClick={(e) => e.stopPropagation()}
       >
+        {banner ? (
+          <div className="relative rounded-lg border border-border overflow-hidden group">
+            <img src={banner} alt="Form banner" className="w-full h-40 sm:h-52 object-cover" />
+            <button type="button" onClick={handleBannerRemove}
+              className="absolute top-2 right-2 p-1.5 rounded-md bg-black/50 text-white hover:bg-black/70 transition-colors opacity-0 group-hover:opacity-100"
+              aria-label="Remove banner">
+              <Icon name="x" size="sm" strokeWidth={2} aria-hidden="true" />
+            </button>
+            <label htmlFor="form-banner-upload"
+              className="absolute bottom-2 right-2 px-2.5 py-1 rounded-md bg-black/50 text-white text-[12px] font-medium cursor-pointer hover:bg-black/70 transition-colors opacity-0 group-hover:opacity-100">
+              Replace
+            </label>
+            <input id="form-banner-upload" type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={handleBannerUpload} className="hidden" disabled={bannerUploading} />
+          </div>
+        ) : (
+          <label htmlFor="form-banner-upload"
+            className={`flex flex-col items-center justify-center rounded-lg border border-dashed cursor-pointer transition-all py-8 sm:py-12 ${bannerUploading ? "border-primary/40 bg-primary/5" : "border-border hover:border-primary/30 hover:bg-muted/20"}`}>
+            {bannerUploading ? (
+              <div className="flex items-center gap-2 text-[13px] text-primary">
+                <Icon name="loader" size="sm" className="animate-spin" />
+                <span>Uploading banner...</span>
+              </div>
+            ) : (
+              <>
+                <Icon name="image" size="2xl" className="text-muted-foreground/50" aria-hidden="true" />
+                <span className="text-[13px] text-muted-foreground mt-2 font-medium">Add a banner image (optional)</span>
+                <span className="text-[12px] text-muted-foreground/60 mt-0.5">JPEG, PNG, WebP or GIF \u00b7 Max 5MB</span>
+              </>
+            )}
+            <input id="form-banner-upload" type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={handleBannerUpload} className="hidden" disabled={bannerUploading} />
+          </label>
+        )}
+        {bannerError && <p className="text-[12px] text-destructive">{bannerError}</p>}
         <div className="space-y-2 pt-2">
           <input
             type="text"
@@ -148,6 +209,7 @@ export default function FormCanvas({
                   field={field}
                   isSelected={field.id === selectedFieldId}
                   isDragging={draggedFieldId === field.id}
+                  formId={formId}
                   onSelect={() => onSelectField(field.id === selectedFieldId ? null : field.id)}
                   onUpdate={onUpdateField}
                   onDelete={() => onDeleteField(field.id)}

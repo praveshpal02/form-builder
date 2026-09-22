@@ -43,6 +43,7 @@ The app is split into two experiences:
 | ORM / Data | Prisma + `@prisma/adapter-d1` |
 | Local DB | SQLite (`prisma/dev.db`) |
 | Production DB | Cloudflare D1 |
+| File uploads | Cloudflare R2 (bucket `form-builder-uploads`, binding `FORM_UPLOADS`) |
 | Deployment | Cloudflare Workers via `@opennextjs/cloudflare` |
 | Email | Resend (form submission notifications) |
 

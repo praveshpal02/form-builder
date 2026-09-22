@@ -2,11 +2,11 @@
 
 import { useState, useMemo, useEffect } from "react";
 import FieldRenderer from "./FieldRenderer";
+import FormThemeProvider from "./FormThemeProvider";
 import { t as formT } from "@/lib/i18n/form-translations";
 import { Icon } from "@/components/ui/Icon";
 
 function getDefaultValue(field) {
-  if (field.type === "banner") return null;
   if (field.defaultValue !== undefined && field.defaultValue !== null) return field.defaultValue;
   switch (field.type) {
     case "checkbox": return false;
@@ -25,7 +25,6 @@ function shuffleArray(array) {
 }
 
 function validateField(field, value, locale) {
-  if (field.type === "banner") return null;
   const v = value;
   if (field.required) {
     if (field.type === "checkbox" && !v) return formT("validation.required", locale);
@@ -73,6 +72,7 @@ function checkFormClosed(settings, submissionCount, locale) {
 export default function FormRenderer({ schema, formId, submissionCount = 0, preview = false, onPreviewReset }) {
   const rawFields = useMemo(() => schema.fields || [], [schema.fields]);
   const settings = useMemo(() => schema.settings || {}, [schema.settings]);
+  const theme = settings.theme;
   const locale = settings.locale || "en-IN";
   const displayFields = useMemo(() => settings.shuffleFields ? shuffleArray(rawFields) : rawFields, [rawFields, settings.shuffleFields]);
   const formClosed = useMemo(() => checkFormClosed(settings, submissionCount, locale), [settings, submissionCount, locale]);
@@ -84,17 +84,15 @@ export default function FormRenderer({ schema, formId, submissionCount = 0, prev
   const [submitError, setSubmitError] = useState(null);
 
   const progress = useMemo(() => {
-    if (!settings.showProgressBar) return 0;
-    const inputFields = displayFields.filter((f) => f.type !== "banner");
-    if (inputFields.length === 0) return 0;
-    const answered = inputFields.filter((field) => {
+    if (!settings.showProgressBar || displayFields.length === 0) return 0;
+    const answered = displayFields.filter((field) => {
       const val = values[field.id];
       if (field.type === "checkbox") return val === true;
       if (field.type === "multiselect") return Array.isArray(val) && val.length > 0;
       if (field.type === "rating") return val !== "" && val !== 0;
       return val !== "" && val !== null && val !== undefined;
     }).length;
-    return Math.round((answered / inputFields.length) * 100);
+    return Math.round((answered / displayFields.length) * 100);
   }, [values, displayFields, settings.showProgressBar]);
 
   const handleChange = (fieldId, newValue) => {
@@ -138,80 +136,89 @@ export default function FormRenderer({ schema, formId, submissionCount = 0, prev
 
   if (submitted) {
     return (
-      <div className="flex min-h-[calc(100vh-56px)] items-center justify-center bg-muted/30 px-4 py-10">
-        <div className="w-full max-w-lg">
-          <div className="rounded-lg border border-border bg-white p-8 shadow-sm text-center">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-success-bg mx-auto mb-4">
-              <Icon name="checkCircle" size="lg" className="text-success" aria-hidden="true" />
+      <FormThemeProvider theme={theme}>
+        <div className="flex min-h-[calc(100vh-56px)] items-center justify-center bg-muted/30 px-4 py-10">
+          <div className="w-full max-w-lg">
+            <div className="rounded-lg border border-border bg-white p-8 shadow-sm text-center">
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-success-bg mx-auto mb-4">
+                <Icon name="checkCircle" size="lg" className="text-success" aria-hidden="true" />
+              </div>
+              <h2 className="text-lg font-semibold text-foreground mb-1.5">{settings.successMessage || formT("form.success", locale)}</h2>
+              <p className="text-[13px] text-muted-foreground">{formT("form.recorded", locale)}</p>
+              {preview && (
+                <button type="button" onClick={() => { setSubmitted(false); setValues(initialValues); setErrors({}); if (onPreviewReset) onPreviewReset(); }}
+                  className="mt-4 inline-flex items-center gap-1.5 rounded-md border border-border bg-white px-4 py-2 text-[13px] font-medium text-foreground hover:bg-muted transition-colors">
+                  <Icon name="rotateCcw" size="sm" strokeWidth={2} aria-hidden="true" />
+                  Submit another response
+                </button>
+              )}
             </div>
-            <h2 className="text-lg font-semibold text-foreground mb-1.5">{settings.successMessage || formT("form.success", locale)}</h2>
-            <p className="text-[13px] text-muted-foreground">{formT("form.recorded", locale)}</p>
-            {preview && (
-              <button type="button" onClick={() => { setSubmitted(false); setValues(initialValues); setErrors({}); if (onPreviewReset) onPreviewReset(); }}
-                className="mt-4 inline-flex items-center gap-1.5 rounded-md border border-border bg-white px-4 py-2 text-[13px] font-medium text-foreground hover:bg-muted transition-colors">
-                <Icon name="rotateCcw" size="sm" strokeWidth={2} aria-hidden="true" />
-                Submit another response
-              </button>
-            )}
           </div>
         </div>
-      </div>
+      </FormThemeProvider>
     );
   }
 
   if (formClosed.closed) {
     return (
-      <div className="flex min-h-[calc(100vh-56px)] items-center justify-center bg-muted/30 px-4 py-10">
-        <div className="w-full max-w-lg">
-          <div className="rounded-lg border border-border bg-white p-8 shadow-sm text-center">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-warning-bg mx-auto mb-4">
-              <Icon name="alertTriangle" size="lg" className="text-warning" aria-hidden="true" />
+      <FormThemeProvider theme={theme}>
+        <div className="flex min-h-[calc(100vh-56px)] items-center justify-center bg-muted/30 px-4 py-10">
+          <div className="w-full max-w-lg">
+            <div className="rounded-lg border border-border bg-white p-8 shadow-sm text-center">
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-warning-bg mx-auto mb-4">
+                <Icon name="alertTriangle" size="lg" className="text-warning" aria-hidden="true" />
+              </div>
+              <h2 className="text-lg font-semibold text-foreground mb-1.5">{formT("form.closedTitle", locale)}</h2>
+              <p className="text-[13px] text-muted-foreground">{formClosed.message}</p>
             </div>
-            <h2 className="text-lg font-semibold text-foreground mb-1.5">{formT("form.closedTitle", locale)}</h2>
-            <p className="text-[13px] text-muted-foreground">{formClosed.message}</p>
           </div>
         </div>
-      </div>
+      </FormThemeProvider>
     );
   }
 
   return (
-    <div className="flex min-h-[calc(100vh-56px)] items-start justify-center bg-muted/30 px-4 py-10">
-      <div className="w-full max-w-lg">
-        <div className="rounded-lg border border-border bg-white p-6 sm:p-8 shadow-sm">
-          <div className="mb-5">
-            <h1 className="text-xl font-semibold tracking-tight text-foreground">{schema.title || formT("form.untitledForm", locale)}</h1>
-            {schema.description && <p className="text-muted-foreground mt-1 text-[13px]">{schema.description}</p>}
-          </div>
-
-          {settings.showProgressBar && displayFields.length > 0 && (
-            <div className="mb-5" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100} aria-label="Form completion progress">
-              <div className="flex items-center justify-between text-[11px] text-muted-foreground mb-1">
-                <span>Progress</span><span>{progress}%</span>
-              </div>
-              <div className="h-1 rounded-full bg-muted overflow-hidden">
-                <div className="h-full rounded-full bg-primary transition-all duration-300" style={{ width: `${progress}%` }} />
-              </div>
+    <FormThemeProvider theme={theme}>
+      <div className="flex min-h-[calc(100vh-56px)] items-start justify-center bg-muted/30 px-4 py-10">
+        <div className="w-full max-w-lg rounded-lg border border-border shadow-sm overflow-hidden" style={{ backgroundColor: "var(--form-bg)", color: "var(--form-text)" }}>
+          {schema.banner && (
+            <img src={schema.banner} alt="Form banner" className="w-full h-40 sm:h-52 object-cover" loading="lazy" />
+          )}
+          <div className="p-6 sm:p-8">
+            <div className="mb-5">
+              <h1 className="text-xl font-semibold tracking-tight" style={{ color: "var(--form-text)" }}>{schema.title || formT("form.untitledForm", locale)}</h1>
+              {schema.description && <p className="mt-1 text-[13px]" style={{ color: "var(--form-text)", opacity: 0.7 }}>{schema.description}</p>}
             </div>
-          )}
 
-          {displayFields.length === 0 ? (
-            <div className="py-10 text-center text-muted-foreground"><p className="text-[13px]">{formT("form.noFields", locale)}</p></div>
-          ) : (
-            <form onSubmit={handleSubmit} noValidate lang={locale} className="space-y-5">
-              {submitError && <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2.5 text-[13px] text-red-700" role="alert">{submitError}</div>}
-              {displayFields.map((field) => (
-                <FieldRenderer key={field.id} field={field} value={values[field.id]} onChange={(v) => handleChange(field.id, v)} error={errors[field.id]} locale={locale} formId={formId} disabled={submitting} />
-              ))}
-              <div className="pt-1">
-                <button type="submit" disabled={submitting} className="w-full rounded-md bg-primary px-6 py-2.5 text-[13px] font-medium text-white hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-                  {submitting ? formT("form.submitting", locale) : settings.submitButtonText || formT("form.submit", locale)}
-                </button>
+            {settings.showProgressBar && displayFields.length > 0 && (
+              <div className="mb-5" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100} aria-label="Form completion progress">
+                <div className="flex items-center justify-between text-[11px] mb-1" style={{ color: "var(--form-text)", opacity: 0.6 }}>
+                  <span>Progress</span><span>{progress}%</span>
+                </div>
+                <div className="h-1 rounded-full overflow-hidden" style={{ backgroundColor: "color-mix(in srgb, var(--form-text) 10%, transparent)" }}>
+                  <div className="h-full rounded-full transition-all duration-300" style={{ width: `${progress}%`, backgroundColor: "var(--form-accent)" }} />
+                </div>
               </div>
-            </form>
-          )}
+            )}
+
+            {displayFields.length === 0 ? (
+              <div className="py-10 text-center" style={{ color: "var(--form-text)", opacity: 0.5 }}><p className="text-[13px]">{formT("form.noFields", locale)}</p></div>
+            ) : (
+              <form onSubmit={handleSubmit} noValidate lang={locale} className="space-y-5">
+                {submitError && <div className="rounded-md border px-3 py-2.5 text-[13px]" style={{ borderColor: "color-mix(in srgb, #dc2626 30%, transparent)", backgroundColor: "color-mix(in srgb, #dc2626 5%, transparent)", color: "#dc2626" }} role="alert">{submitError}</div>}
+                {displayFields.map((field) => (
+                  <FieldRenderer key={field.id} field={field} value={values[field.id]} onChange={(v) => handleChange(field.id, v)} error={errors[field.id]} locale={locale} formId={formId} disabled={submitting} />
+                ))}
+                <div className="pt-1">
+                  <button type="submit" disabled={submitting} className="w-full rounded-md px-6 py-2.5 text-[13px] font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors" style={{ backgroundColor: "var(--form-btn-bg)", color: "var(--form-btn-text)" }}>
+                    {submitting ? formT("form.submitting", locale) : settings.submitButtonText || formT("form.submit", locale)}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </FormThemeProvider>
   );
 }

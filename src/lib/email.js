@@ -47,8 +47,6 @@ function formatFieldValue(field, value) {
       return `${value} / ${field.maxRating || 5}`;
     case "file":
       return "File upload";
-    case "banner":
-      return null;
     default:
       return String(value);
   }

@@ -5,6 +5,7 @@ import { Icon } from "@/components/ui/Icon";
 import { Toggle } from "@/components/ui/Toggle";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Input";
+import { FORM_THEME_FONTS, DEFAULT_FORM_THEME } from "@/lib/form-schema";
 
 function Section({ title, description, children }) {
   return (
@@ -74,6 +75,119 @@ export default function FormSettingsModal({
                 </Select>
                 <p className="text-xs text-muted-foreground mt-0.5">Language for system-generated text on the public form.</p>
               </div>
+            </div>
+          </Section>
+
+          <Section title="Theme" description="Customize form appearance">
+            <div className="space-y-3 pt-0.5">
+              <div>
+                <label htmlFor="fs-theme-font" className="block text-xs font-medium text-muted-foreground mb-1">Font</label>
+                <Select
+                  id="fs-theme-font"
+                  value={s.theme?.font || DEFAULT_FORM_THEME.font}
+                  onChange={(e) => onUpdateSettings("theme", { ...DEFAULT_FORM_THEME, ...s.theme, font: e.target.value })}
+                  options={FORM_THEME_FONTS}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label htmlFor="fs-theme-bg" className="block text-xs font-medium text-muted-foreground mb-1">Background</label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      id="fs-theme-bg"
+                      type="color"
+                      value={s.theme?.background || DEFAULT_FORM_THEME.background}
+                      onChange={(e) => onUpdateSettings("theme", { ...DEFAULT_FORM_THEME, ...s.theme, background: e.target.value })}
+                      className="h-8 w-8 rounded border border-border cursor-pointer shrink-0"
+                    />
+                    <input
+                      type="text"
+                      value={s.theme?.background || DEFAULT_FORM_THEME.background}
+                      onChange={(e) => onUpdateSettings("theme", { ...DEFAULT_FORM_THEME, ...s.theme, background: e.target.value })}
+                      className="flex-1 rounded-md border border-border bg-background px-2.5 py-1.5 text-xs text-foreground focus:border-primary/40 focus:outline-none focus:ring-1 focus:ring-primary/30 font-mono"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label htmlFor="fs-theme-text" className="block text-xs font-medium text-muted-foreground mb-1">Text Color</label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      id="fs-theme-text"
+                      type="color"
+                      value={s.theme?.text || DEFAULT_FORM_THEME.text}
+                      onChange={(e) => onUpdateSettings("theme", { ...DEFAULT_FORM_THEME, ...s.theme, text: e.target.value })}
+                      className="h-8 w-8 rounded border border-border cursor-pointer shrink-0"
+                    />
+                    <input
+                      type="text"
+                      value={s.theme?.text || DEFAULT_FORM_THEME.text}
+                      onChange={(e) => onUpdateSettings("theme", { ...DEFAULT_FORM_THEME, ...s.theme, text: e.target.value })}
+                      className="flex-1 rounded-md border border-border bg-background px-2.5 py-1.5 text-xs text-foreground focus:border-primary/40 focus:outline-none focus:ring-1 focus:ring-primary/30 font-mono"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label htmlFor="fs-theme-btn-bg" className="block text-xs font-medium text-muted-foreground mb-1">Button Background</label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      id="fs-theme-btn-bg"
+                      type="color"
+                      value={s.theme?.buttonBackground || DEFAULT_FORM_THEME.buttonBackground}
+                      onChange={(e) => onUpdateSettings("theme", { ...DEFAULT_FORM_THEME, ...s.theme, buttonBackground: e.target.value })}
+                      className="h-8 w-8 rounded border border-border cursor-pointer shrink-0"
+                    />
+                    <input
+                      type="text"
+                      value={s.theme?.buttonBackground || DEFAULT_FORM_THEME.buttonBackground}
+                      onChange={(e) => onUpdateSettings("theme", { ...DEFAULT_FORM_THEME, ...s.theme, buttonBackground: e.target.value })}
+                      className="flex-1 rounded-md border border-border bg-background px-2.5 py-1.5 text-xs text-foreground focus:border-primary/40 focus:outline-none focus:ring-1 focus:ring-primary/30 font-mono"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label htmlFor="fs-theme-btn-text" className="block text-xs font-medium text-muted-foreground mb-1">Button Text</label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      id="fs-theme-btn-text"
+                      type="color"
+                      value={s.theme?.buttonText || DEFAULT_FORM_THEME.buttonText}
+                      onChange={(e) => onUpdateSettings("theme", { ...DEFAULT_FORM_THEME, ...s.theme, buttonText: e.target.value })}
+                      className="h-8 w-8 rounded border border-border cursor-pointer shrink-0"
+                    />
+                    <input
+                      type="text"
+                      value={s.theme?.buttonText || DEFAULT_FORM_THEME.buttonText}
+                      onChange={(e) => onUpdateSettings("theme", { ...DEFAULT_FORM_THEME, ...s.theme, buttonText: e.target.value })}
+                      className="flex-1 rounded-md border border-border bg-background px-2.5 py-1.5 text-xs text-foreground focus:border-primary/40 focus:outline-none focus:ring-1 focus:ring-primary/30 font-mono"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label htmlFor="fs-theme-accent" className="block text-xs font-medium text-muted-foreground mb-1">Accent</label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      id="fs-theme-accent"
+                      type="color"
+                      value={s.theme?.accent || DEFAULT_FORM_THEME.accent}
+                      onChange={(e) => onUpdateSettings("theme", { ...DEFAULT_FORM_THEME, ...s.theme, accent: e.target.value })}
+                      className="h-8 w-8 rounded border border-border cursor-pointer shrink-0"
+                    />
+                    <input
+                      type="text"
+                      value={s.theme?.accent || DEFAULT_FORM_THEME.accent}
+                      onChange={(e) => onUpdateSettings("theme", { ...DEFAULT_FORM_THEME, ...s.theme, accent: e.target.value })}
+                      className="flex-1 rounded-md border border-border bg-background px-2.5 py-1.5 text-xs text-foreground focus:border-primary/40 focus:outline-none focus:ring-1 focus:ring-primary/30 font-mono"
+                    />
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => onUpdateSettings("theme", { ...DEFAULT_FORM_THEME })}
+                className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Reset to default theme
+              </button>
             </div>
           </Section>
 

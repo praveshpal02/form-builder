@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { createOption } from "@/lib/form-schema";
 import { Icon } from "@/components/ui/Icon";
+import { FileFieldInput } from "@/components/form-renderer/FieldRenderer";
 
 export default function FieldCard({
   field,
@@ -18,10 +19,10 @@ export default function FieldCard({
   isLast,
   onDragStart,
   onDragEnd,
+  formId = null,
 }) {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [bannerUploading, setBannerUploading] = useState(false);
-  const [bannerError, setBannerError] = useState(null);
+  const [previewFiles, setPreviewFiles] = useState([]);
 
   const effectiveSettingsOpen = isSelected && isSettingsOpen;
 
@@ -55,29 +56,6 @@ export default function FieldCard({
     const currentOptions = Array.isArray(field.options) ? [...field.options] : [];
     currentOptions.splice(index, 1);
     onUpdate(field.id, { options: currentOptions });
-  };
-
-  const handleBannerUpload = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setBannerUploading(true);
-    setBannerError(null);
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-      const res = await fetch("/api/upload/banner", { method: "POST", body: formData });
-      const data = await res.json();
-      if (!res.ok || !data.success) throw new Error(data.error || "Upload failed");
-      onUpdate(field.id, { imageUrl: data.key });
-    } catch (err) {
-      setBannerError(err.message || "Upload failed");
-    } finally {
-      setBannerUploading(false);
-    }
-  };
-
-  const handleBannerRemove = () => {
-    onUpdate(field.id, { imageUrl: "" });
   };
 
   const hasPlaceholder = [
@@ -189,14 +167,14 @@ export default function FieldCard({
         );
       case "file":
         return (
-          <div className="flex flex-col items-center justify-center rounded-md border border-dashed border-border bg-muted/20 p-5 text-center">
-            <Icon name="upload" size="2xl" className="text-muted-foreground" aria-hidden="true" />
-            <span className="text-[12px] font-medium text-foreground">Click to browse or drag and drop</span>
-            <span className="text-[11px] text-muted-foreground mt-0.5">
-              {field.accept ? `Accepted: ${field.accept}` : "Any file type"}
-              {field.maxSizeMB ? ` \u00b7 Max ${field.maxSizeMB}MB` : ""}
-              {field.maxFiles ? ` \u00b7 Up to ${field.maxFiles}` : ""}
-            </span>
+          <div className="pointer-events-auto" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()} onPointerDown={(e) => e.stopPropagation()}>
+            <FileFieldInput
+              field={field}
+              value={previewFiles}
+              onChange={setPreviewFiles}
+              locale="en-IN"
+              formId={formId}
+            />
           </div>
         );
       case "rating":
@@ -207,20 +185,6 @@ export default function FieldCard({
               <Icon key={i} name="star" size="lg" className="text-muted-foreground/30 hover:text-warning cursor-pointer transition-colors" fill="currentColor" aria-hidden="true" />
             ))}
             <span className="text-[11px] text-muted-foreground ml-1">(1 to {maxStars})</span>
-          </div>
-        );
-      case "banner":
-        return (
-          <div className="rounded-md border border-dashed border-border bg-muted/20 overflow-hidden">
-            {field.imageUrl ? (
-              <img src={field.imageUrl} alt="Banner preview" className="w-full h-32 object-cover" />
-            ) : (
-              <div className="flex flex-col items-center justify-center py-8 text-center">
-                <Icon name="image" size="2xl" className="text-muted-foreground/40" aria-hidden="true" />
-                <span className="text-[12px] text-muted-foreground mt-1.5">No banner image uploaded</span>
-                <span className="text-[11px] text-muted-foreground/60 mt-0.5">Configure to upload</span>
-              </div>
-            )}
           </div>
         );
       default:
@@ -312,7 +276,7 @@ export default function FieldCard({
           </div>
         </div>
 
-        <div className="mt-2 pointer-events-none">
+        <div className={`mt-2 ${field.type === "file" ? "" : "pointer-events-none"}`}>
           {renderInputPreview()}
         </div>
       </div>
@@ -527,40 +491,6 @@ export default function FieldCard({
                       </div>
                     )}
                   </div>
-                </div>
-              )}
-
-              {field.type === "banner" && (
-                <div className="pt-2 border-t border-border/40 space-y-3">
-                  <label className="block text-[11px] font-medium text-muted-foreground">Banner Image</label>
-                  {field.imageUrl && (
-                    <div className="relative rounded-md border border-border overflow-hidden">
-                      <img src={field.imageUrl} alt="Banner" className="w-full h-32 object-cover" />
-                      <button type="button" onClick={handleBannerRemove}
-                        className="absolute top-1.5 right-1.5 p-1 rounded bg-black/50 text-white hover:bg-black/70 transition-colors"
-                        aria-label="Remove banner image">
-                        <Icon name="x" size="xs" strokeWidth={2} aria-hidden="true" />
-                      </button>
-                    </div>
-                  )}
-                  <div>
-                    <label htmlFor={`banner-upload-${field.id}`} className={`flex flex-col items-center justify-center rounded-md border border-dashed cursor-pointer transition-colors ${bannerUploading ? "border-primary/40 bg-primary/5" : "border-border hover:border-primary/30 hover:bg-muted/30"} ${field.imageUrl ? "py-3" : "py-6"}`}>
-                      {bannerUploading ? (
-                        <div className="flex items-center gap-2 text-[12px] text-primary">
-                          <Icon name="loader" size="sm" className="animate-spin" />
-                          <span>Uploading...</span>
-                        </div>
-                      ) : (
-                        <>
-                          <Icon name="upload" size={field.imageUrl ? "sm" : "lg"} className="text-muted-foreground" aria-hidden="true" />
-                          <span className="text-[12px] text-muted-foreground mt-1">{field.imageUrl ? "Replace image" : "Click to upload an image"}</span>
-                          <span className="text-[11px] text-muted-foreground/60 mt-0.5">JPEG, PNG, WebP or GIF (max 5MB)</span>
-                        </>
-                      )}
-                    </label>
-                    <input id={`banner-upload-${field.id}`} type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={handleBannerUpload} className="hidden" disabled={bannerUploading} />
-                  </div>
-                  {bannerError && <p className="text-[11px] text-destructive">{bannerError}</p>}
                 </div>
               )}
 
